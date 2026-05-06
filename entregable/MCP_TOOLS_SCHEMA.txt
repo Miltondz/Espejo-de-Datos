@@ -1,0 +1,163 @@
+Espejo de Datos — MCP Tool Schemas
+financial-mirror-mcp · FastMCP · Python · stdio transport
+Claude Impact Lab Chile 2026 · Línea 01 Inclusión Financiera
+
+=============================================================
+TOOL 1: parse_cartola
+=============================================================
+Descripción: Parsea una cartola bancaria y devuelve transacciones normalizadas.
+
+Input:
+  file_path (string, required): ruta o URI del archivo.
+    Ejemplos: "demo://paula", "demo://luis", "/uploads/cartola.pdf"
+
+Output:
+  transacciones (array):
+    - fecha (string YYYY-MM-DD)
+    - monto (number, positivo=abono, negativo=cargo)
+    - tipo ("abono" | "cargo")
+    - descripcion (string)
+    - saldo (number, opcional)
+  periodoMeses (number): meses cubiertos por la cartola
+  institucionesDetectadas (string[]): bancos/fintechs identificados
+
+=============================================================
+TOOL 2: fetch_macro_indicators
+=============================================================
+Descripción: Obtiene indicadores macro oficiales de Chile en tiempo real.
+Fuente: mindicador.cl (UF, IPC, TPM, TMC)
+
+Input:
+  fecha_referencia (string YYYY-MM-DD, required): fecha del análisis
+
+Output:
+  ufValor (number): valor UF en pesos CLP
+  ipcUltimoMesPct (number): IPC último mes en %
+  tpmPct (number): Tasa de Política Monetaria en %
+  tmcPct (number): Tasa Máxima Convencional en % (CMF vía mindicador.cl)
+
+=============================================================
+TOOL 3: build_financial_profile
+=============================================================
+Descripción: Construye el perfil financiero normalizado a partir de transacciones y macro.
+
+Input:
+  transacciones (array): output de parse_cartola
+  periodoMeses (number): meses cubiertos
+  macro (object): output de fetch_macro_indicators
+
+Output (FinancialProfile):
+  ingresos:
+    promedioMensual (number)
+    regularidad ("estable" | "variable" | "irregular")
+    porMes (Record<string, number>)
+  egresos:
+    promedioMensual (number)
+    porMes (Record<string, number>)
+  liquidez:
+    saldoPromedioFinMes (number)
+    mesesConSaldoNegativo (number)
+    presion ("alta" | "media" | "baja")
+  credito:
+    tieneAvancesEfectivo (boolean)
+    tieneSobregiros (boolean)
+    usoCupoEstimadoPct (number)
+    tasaEfectivaEstimadoPct (number)
+  formalidad:
+    brechaIngresosDeclaradosPct (number)
+  pagos:
+    puntualidadEstimada ("alta" | "media" | "baja")
+  benchmarks:
+    tmcPct (number): umbral dinámico TMC
+    ipcUltimoMesPct (number)
+    tpmPct (number)
+  metadatos:
+    periodoMeses (number)
+    fuenteDatos (string)
+    fechaAnalisis (string)
+    institucionesDetectadas (string[])
+
+=============================================================
+TOOL 4: extract_signals
+=============================================================
+Descripción: Extrae señales canónicas a partir del perfil financiero.
+Genera hasta 7 señales explicables (uso de cupo, liquidez, ingresos, avances,
+brecha tributaria, tasa cercana TMC, puntualidad de pagos).
+
+Input:
+  financial_profile (object): output de build_financial_profile
+
+Output:
+  signals (EspejoSignal[]):
+    - id (string): identificador canónico, ej. "sig_uso_cupo_alto"
+    - familia ("ingresos"|"liquidez"|"credito"|"pagos"|"formalidad"|"legal")
+    - tipo ("positiva"|"ambigua"|"riesgo"|"sin_datos")
+    - titulo (string): lenguaje ciudadano
+    - descripcionCorta (string): 1-2 frases explicativas
+    - importancia (1|2|3): 3=alta
+    - valorResumen (string): valor legible, ej. "85%"
+    - esLegal (boolean): si está relacionada con un derecho legal
+
+=============================================================
+TOOL 5: generate_lenses
+=============================================================
+Descripción: Genera 3 lentes institucionales (Banco, Fintech, Estado) que
+interpretan el perfil del usuario desde cada perspectiva.
+
+Input:
+  financial_profile (object): output de build_financial_profile
+  signals (array): output de extract_signals
+
+Output:
+  lenses (EspejoLens[]):
+    - institutionType ("bank"|"fintech"|"estado")
+    - nombre (string): nombre del lente
+    - headline (string): titular en lenguaje ciudadano
+    - resumen (string): 2-3 frases de interpretación
+    - señalesClaves (array):
+        - signalId (string)
+        - impacto ("positivo"|"negativo"|"neutral")
+        - comentario (string)
+
+=============================================================
+TOOL 6: simulate_change
+=============================================================
+Descripción: Simula el impacto de un cambio de comportamiento financiero
+sobre el perfil y las señales.
+
+Input:
+  financial_profile (object): perfil actual
+  action (object):
+    tipo ("reducir_uso_cupo"|"reducir_avances"|"aumentar_saldo_fin_mes"|"formalizar_ingresos")
+    cantidadPct (number): magnitud del cambio en %
+
+Output:
+  newProfile (object): perfil modificado (misma forma que FinancialProfile)
+  changedSignals (string[]): IDs de señales que mejoran con este cambio
+  resumen (string): descripción del impacto en lenguaje ciudadano
+
+=============================================================
+AGENTES QUE USAN ESTAS TOOLS
+=============================================================
+
+MirrorBuilderAgent (claude-sonnet-4-6):
+  Cadena obligatoria: parse_cartola → fetch_macro_indicators →
+  build_financial_profile → extract_signals → generate_lenses
+  Output: EspejoResponse (JSON estructurado)
+
+ActionPlannerAgent (claude-sonnet-4-6):
+  Tool: simulate_change
+  Razona sobre la hipótesis del usuario y elige la acción de mayor impacto.
+  Output: EspejoSimulationSuggestion (JSON estructurado)
+
+LetterGeneratorAgent (claude-haiku-4-5-20251001):
+  Sin tools — genera texto plano de carta de derechos del consumidor.
+
+=============================================================
+HERRAMIENTAS ANTHROPIC USADAS
+=============================================================
+
+- Claude API (Anthropic SDK para Node.js — @anthropic-ai/sdk)
+- Tool Use (tool_use / tool_result loop)
+- MCP (Model Context Protocol — FastMCP Python server, stdio transport)
+- Modelos: claude-sonnet-4-6 (agentes principales) + claude-haiku-4-5-20251001 (cartas)
