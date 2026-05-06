@@ -3,11 +3,16 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 
-interface Indicadores {
-  ufValor: number | null
-  ipcPct: number | null
-  tpmPct: number | null
-  tmcPct: number | null
+interface MacroData {
+  ufValor:       number | null
+  ipcPct:        number | null
+  tpmPct:        number | null
+  tmcPct:        number | null
+  usdClp:        number | null
+  usdFecha:      string | null
+  imacec:        number | null
+  imacecFecha:   string | null
+  fuenteBde:     boolean
   fechaConsulta: string | null
 }
 
@@ -15,28 +20,22 @@ const CLP = (n: number) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
 export default function DashboardPage() {
-  const [data, setData] = useState<Indicadores>({ ufValor: null, ipcPct: null, tpmPct: null, tmcPct: null, fechaConsulta: null })
+  const [data, setData] = useState<MacroData>({
+    ufValor: null, ipcPct: null, tpmPct: null, tmcPct: null,
+    usdClp: null, usdFecha: null, imacec: null, imacecFecha: null,
+    fuenteBde: false, fechaConsulta: null,
+  })
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const [error, setError]     = useState(false)
 
   useEffect(() => {
-    const BASE = 'https://mindicador.cl/api'
-
-    Promise.allSettled([
-      fetch(`${BASE}/uf`).then(r => r.json()),
-      fetch(`${BASE}/ipc`).then(r => r.json()),
-      fetch(`${BASE}/tpm`).then(r => r.json()),
-      fetch(`${BASE}/tmc`).then(r => r.json()),
-    ]).then(([uf, ipc, tpm, tmc]) => {
-      const ufValor  = uf.status  === 'fulfilled' ? Number(uf.value?.serie?.[0]?.valor)  : null
-      const ipcPct   = ipc.status === 'fulfilled' ? Number(ipc.value?.serie?.[0]?.valor) : null
-      const tpmPct   = tpm.status === 'fulfilled' ? Number(tpm.value?.serie?.[0]?.valor) : null
-      const tmcPct   = tmc.status === 'fulfilled' ? Number(tmc.value?.serie?.[0]?.valor) : null
-      const fecha    = uf.status  === 'fulfilled' ? uf.value?.serie?.[0]?.fecha?.slice(0, 10) : null
-
-      if (ufValor === null && ipcPct === null && tpmPct === null) setError(true)
-      setData({ ufValor, ipcPct, tpmPct, tmcPct, fechaConsulta: fecha })
-    }).catch(() => setError(true))
+    fetch('/api/macro')
+      .then(r => r.json())
+      .then((d: MacroData) => {
+        if (!d.ufValor && !d.ipcPct && !d.tpmPct) setError(true)
+        setData(d)
+      })
+      .catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [])
 
@@ -44,27 +43,45 @@ export default function DashboardPage() {
     {
       label: 'UF hoy',
       value: data.ufValor !== null ? CLP(data.ufValor) : '—',
-      sub: 'Unidad de Fomento',
+      sub:   'Unidad de Fomento',
+      fuente: 'mindicador.cl',
     },
     {
       label: 'IPC último mes',
       value: data.ipcPct !== null ? `${data.ipcPct.toFixed(1)}%` : '—',
-      sub: 'Inflación mensual',
+      sub:   'Inflación mensual',
+      fuente: 'mindicador.cl',
     },
     {
       label: 'TPM',
       value: data.tpmPct !== null ? `${data.tpmPct.toFixed(2)}%` : '—',
-      sub: 'Tasa de política monetaria',
+      sub:   'Tasa política monetaria',
+      fuente: 'mindicador.cl',
     },
     {
       label: 'TMC',
       value: data.tmcPct !== null ? `${data.tmcPct.toFixed(2)}%` : '—',
-      sub: 'Tasa máxima convencional',
+      sub:   'Tasa máxima convencional',
+      fuente: 'mindicador.cl',
+    },
+    {
+      label: 'USD/CLP',
+      value: data.usdClp !== null ? CLP(data.usdClp) : '—',
+      sub:   data.usdFecha ? `Dólar observado ${data.usdFecha}` : 'Dólar observado',
+      fuente: 'BCentral BDE',
+      badge: data.fuenteBde,
+    },
+    {
+      label: 'IMACEC',
+      value: data.imacec !== null ? data.imacec.toFixed(1) : '—',
+      sub:   data.imacecFecha ? `Actividad econ. ${data.imacecFecha.slice(0, 7)}` : 'Actividad econ. mensual',
+      fuente: 'BCentral BDE',
+      badge: data.fuenteBde,
     },
   ]
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-2xl space-y-6">
+    <div className="container mx-auto px-4 py-12 max-w-3xl space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Dashboard Macro</h1>
         {data.fechaConsulta && (
@@ -73,15 +90,16 @@ export default function DashboardPage() {
       </div>
 
       <p className="text-gray-500 text-sm">
-        Indicadores económicos en tiempo real desde{' '}
-        <a href="https://mindicador.cl" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-          mindicador.cl
-        </a>
+        Indicadores económicos en tiempo real —{' '}
+        <a href="https://mindicador.cl" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">mindicador.cl</a>
+        {data.fuenteBde && (
+          <> y <a href="https://si3.bcentral.cl" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Banco Central BDE</a></>
+        )}
       </p>
 
       {loading && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[1, 2, 3].map(i => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {[1,2,3,4,5,6].map(i => (
             <div key={i} className="bg-white rounded-xl shadow p-4 text-center animate-pulse">
               <div className="h-3 bg-gray-200 rounded w-2/3 mx-auto mb-2" />
               <div className="h-7 bg-gray-200 rounded w-1/2 mx-auto mb-1" />
@@ -98,10 +116,15 @@ export default function DashboardPage() {
       )}
 
       {!loading && !error && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {indicadores.map(({ label, value, sub }) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {indicadores.map(({ label, value, sub, fuente, badge }) => (
             <div key={label} className="bg-white rounded-xl shadow p-4 text-center">
-              <p className="text-xs text-gray-500">{label}</p>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <p className="text-xs text-gray-500">{label}</p>
+                {badge && (
+                  <span className="text-[10px] bg-green-100 text-green-700 px-1 rounded font-medium">BCCh</span>
+                )}
+              </div>
               <p className="text-2xl font-bold text-blue-700 my-1">{value}</p>
               <p className="text-xs text-gray-400">{sub}</p>
             </div>
