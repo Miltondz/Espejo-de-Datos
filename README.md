@@ -101,7 +101,7 @@ Espejo de Datos es una herramienta educativa. No es asesoría financiera ni lega
 | 00:00 → en curso | **Scaffold MVP** — Next.js, tipos, DAL, espejo-builder, 3 API routes, 8 componentes, 6 skills | ✅ |
 | En curso → 19:00 | **Frontend polish** — layout, diseño Tailwind, UX `/analizador` (Alejandra) | 🔄 |
 | 19:00 → 21:00 | **MCP server** — 6 tools Python (parse_cartola, fetch_macro_indicators, build_financial_profile, extract_signals, generate_lenses, simulate_change) | ✅ |
-| 21:00 → 23:59 | **Integración agentes** — MirrorBuilderAgent + ActionPlannerAgent conectados a `/api/analyze` y `/api/simulate` | 🔜 |
+| 21:00 → 23:59 | **Integración agentes** — MirrorBuilderAgent + ActionPlannerAgent conectados a `/api/analyze` y `/api/simulate` | ✅ |
 
 ### Día 2 — 7 mayo
 

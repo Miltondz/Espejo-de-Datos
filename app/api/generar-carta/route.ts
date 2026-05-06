@@ -1,20 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { callLetterGeneratorAgent } from '@/lib/agents/letterGeneratorAgent'
+
+interface CartaRequest {
+  tipoProblema: string
+  nombreInstitucion: string
+  tipoProducto: string
+  segmento: 'emprendedora' | 'jubilado'
+  nombreUsuario?: string
+  rutUsuario?: string
+}
 
 export async function POST(req: NextRequest) {
+  let body: CartaRequest
+
   try {
-    const body = await req.json()
-    const institucion: string = body.nombreInstitucion ?? '[Institución]'
-    const producto: string = body.tipoProducto ?? 'producto financiero'
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ error: 'Cuerpo de la solicitud inválido' }, { status: 400 })
+  }
 
-    const carta = `Estimados señores de ${institucion},
+  // Ruta principal: agente
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      const result = await callLetterGeneratorAgent({
+        tipoProblema: body.tipoProblema ?? 'tasa_cercana_tmc',
+        nombreInstitucion: body.nombreInstitucion ?? '[Institución]',
+        tipoProducto: body.tipoProducto ?? 'crédito',
+        segmento: body.segmento ?? 'emprendedora',
+        nombreUsuario: body.nombreUsuario,
+        rutUsuario: body.rutUsuario,
+      })
+      return NextResponse.json(result)
+    } catch (err) {
+      console.error('[/api/generar-carta] Agente falló, usando fallback:', err)
+    }
+  }
 
-Me dirijo a ustedes para solicitar información y revisión sobre las condiciones de mi ${producto}.
+  // Fallback determinista
+  const inst = body?.nombreInstitucion ?? '[Institución]'
+  const prod = body?.tipoProducto ?? 'producto financiero'
 
-He identificado, a través de una herramienta educativa, que la tasa de interés aplicada a mi producto podría estar cercana al máximo legal permitido en Chile (Tasa Máxima Convencional, regulada por la CMF). En virtud de la Ley N° 18.010 y la normativa vigente, solicito respetuosamente que me entreguen el detalle de los cobros realizados y la tasa efectiva anual aplicada al día de hoy.
+  const cartaTexto = `AVISO: Este borrador es educativo. Revísalo antes de enviarlo.
 
-Solicito también confirmar si existe algún cargo adicional que no haya sido informado en el contrato original.
+Estimados señores de ${inst}:
 
-Quedo a disposición para aclarar cualquier duda al respecto.
+Me dirijo a ustedes para solicitar información y revisión sobre las condiciones de mi ${prod}.
+
+He identificado, a través de una herramienta educativa, que la tasa de interés aplicada podría estar cercana al máximo legal permitido en Chile. En virtud de la legislación chilena vigente sobre derechos del consumidor financiero, solicito respetuosamente que me entreguen el detalle completo de los cobros realizados y la tasa efectiva anual aplicada.
+
+Solicito también confirmar si existe algún cargo adicional no informado en el contrato original.
+
+Espero su respuesta en un plazo de 10 días hábiles.
 
 Sin otro particular, saluda atentamente,
 
@@ -23,11 +59,7 @@ Sin otro particular, saluda atentamente,
 [Fecha]
 
 ---
-Este borrador fue generado por Espejo de Datos con fines educativos.
-Revísalo antes de enviarlo. Para asesoría gratuita: SERNAC (sernac.cl) o CMF Educa (cmfeduca.cl).`
+Para asesoría gratuita: SERNAC (sernac.cl) · CMF Educa (cmfeduca.cl)`
 
-    return NextResponse.json({ cartaTexto: carta })
-  } catch {
-    return NextResponse.json({ error: 'Error al generar carta' }, { status: 500 })
-  }
+  return NextResponse.json({ cartaTexto })
 }

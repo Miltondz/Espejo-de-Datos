@@ -9,11 +9,27 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-- MirrorBuilderAgent conectado a `/api/analyze`
-- ActionPlannerAgent conectado a `/api/simulate`
-- LetterGeneratorAgent conectado a `/api/generar-carta`
 - Pasaporte imprimible con `@media print`
 - Frontend polish (Alejandra) — diseño visual y UX
+
+---
+
+## [0.5.0] — 2026-05-06
+
+### Added
+- `lib/agents/toolImplementations.ts` — 6 implementaciones TypeScript de las tools MCP + schemas Anthropic + ejecutor
+- `lib/agents/mirrorBuilderAgent.ts` — MirrorBuilderAgent: loop agentico con 5 tool calls en cadena (parse → fetch_macro → build_profile → extract_signals → generate_lenses)
+- `lib/agents/actionPlannerAgent.ts` — ActionPlannerAgent: simula cambio con `simulate_change` y genera explicación ciudadana
+- `lib/agents/letterGeneratorAgent.ts` — LetterGeneratorAgent: genera borrador de carta con `claude-haiku-4-5`
+
+### Changed
+- `app/api/analyze/route.ts` — usa MirrorBuilderAgent si hay API key; fallback determinista si falla
+- `app/api/simulate/route.ts` — usa ActionPlannerAgent si hay API key + financialProfile; fallback determinista
+- `app/api/generar-carta/route.ts` — usa LetterGeneratorAgent si hay API key; fallback con carta base
+
+### Notes
+- Build limpio: 10 rutas compiladas sin errores
+- Fallback garantizado en los 3 endpoints — nunca se rompe sin API key
 
 ---
 
