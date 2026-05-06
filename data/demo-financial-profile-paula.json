@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "fechaAnalisis": "2026-03-31",
+    "fuenteDatos": "cartola_manual",
+    "periodoAnalizadoMeses": 3,
+    "institucionesDetectadas": ["BancoEstado", "Mercado Pago"],
+    "fuentesConsultadas": ["cartola", "mindicador"]
+  },
+  "ingresos": {
+    "promedioMensual": 750000,
+    "regularidad": "variable",
+    "fuentes": 1,
+    "tendencia": "estable"
+  },
+  "egresos": {
+    "promedioMensual": 520000,
+    "essentials": 312000,
+    "serviciosRecurrentes": 104000,
+    "creditoCuotas": 78000,
+    "avancesEfectivo": 26000,
+    "otros": 0
+  },
+  "liquidez": {
+    "saldoPromedioFinMes": 50000,
+    "mesesConSaldoNegativo": 2,
+    "presion": "alta"
+  },
+  "credito": {
+    "usoCupoEstimadoPct": 85,
+    "tieneAvancesEfectivo": true,
+    "tieneSobregiros": true,
+    "pagosPuntuales": true,
+    "tasaEfectivaEstimadoPct": 42
+  },
+  "tributario": {
+    "ingresoTributarioEstimado": 5400000,
+    "ingresoBancarioEstimado": 9000000,
+    "brechaFormalidadPct": 40
+  },
+  "benchmarks": {
+    "ufValor": 36500.12,
+    "ipcUltimoMesPct": 0.3,
+    "tpmPct": 4.75
+  }
+}

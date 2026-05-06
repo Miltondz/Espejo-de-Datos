@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "fechaAnalisis": "2026-03-31",
+    "fuenteDatos": "cartola_manual",
+    "periodoAnalizadoMeses": 3,
+    "institucionesDetectadas": ["Banco de Chile", "Falabella"],
+    "fuentesConsultadas": ["cartola", "mindicador"]
+  },
+  "ingresos": {
+    "promedioMensual": 1500000,
+    "regularidad": "estable",
+    "fuentes": 1,
+    "tendencia": "estable"
+  },
+  "egresos": {
+    "promedioMensual": 1380000,
+    "essentials": 600000,
+    "serviciosRecurrentes": 180000,
+    "creditoCuotas": 480000,
+    "avancesEfectivo": 0,
+    "otros": 120000
+  },
+  "liquidez": {
+    "saldoPromedioFinMes": 180000,
+    "mesesConSaldoNegativo": 0,
+    "presion": "media"
+  },
+  "credito": {
+    "usoCupoEstimadoPct": 70,
+    "tieneAvancesEfectivo": false,
+    "tieneSobregiros": false,
+    "pagosPuntuales": true,
+    "tasaEfectivaEstimadoPct": 28
+  },
+  "tributario": {
+    "ingresoTributarioEstimado": 18000000,
+    "ingresoBancarioEstimado": 18000000,
+    "brechaFormalidadPct": 0
+  },
+  "benchmarks": {
+    "ufValor": 36500.12,
+    "ipcUltimoMesPct": 0.3,
+    "tpmPct": 4.75
+  }
+}

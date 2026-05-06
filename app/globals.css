@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    font-size: 11pt;
+    background: white;
+    color: black;
+  }
+
+  .shadow,
+  .shadow-sm,
+  .shadow-xl {
+    box-shadow: none !important;
+  }
+}

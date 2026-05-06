@@ -1,0 +1,113 @@
+{
+  "profileSummary": {
+    "nombreDemo": "Luis",
+    "segmento": "jubilado",
+    "ingresosMensuales": 1500000,
+    "ingresosRegularidad": "estable",
+    "egresosMensuales": 1380000,
+    "saldoPromedioFinMes": 180000,
+    "mesesConSaldoNegativo": 0,
+    "usoCupoPct": 70,
+    "tieneAvancesEfectivo": false,
+    "tieneSobregiros": false
+  },
+  "signals": [
+    {
+      "id": "sig_uso_cupo_medio",
+      "familia": "credito",
+      "tipo": "ambigua",
+      "titulo": "Uso de cupo intermedio",
+      "descripcionCorta": "Tu uso de cupo es moderado, conviene mirarlo para no llegar al tope.",
+      "importancia": 2,
+      "valorResumen": "Uso de cupo ~70%",
+      "esLegal": false
+    },
+    {
+      "id": "sig_ingresos_estables",
+      "familia": "ingresos",
+      "tipo": "positiva",
+      "titulo": "Ingresos estables",
+      "descripcionCorta": "Tus ingresos llegan de forma predecible mes a mes.",
+      "importancia": 3,
+      "valorResumen": "Regularidad: estable",
+      "esLegal": false
+    },
+    {
+      "id": "sig_pagos_puntuales",
+      "familia": "pagos",
+      "tipo": "positiva",
+      "titulo": "Pagas a tiempo",
+      "descripcionCorta": "Tus pagos de crédito y servicios están al día.",
+      "importancia": 2,
+      "valorResumen": "Pagos puntuales: sí",
+      "esLegal": false
+    },
+    {
+      "id": "sig_carga_financiera_alta",
+      "familia": "credito",
+      "tipo": "ambigua",
+      "titulo": "Cuotas pesan en el ingreso",
+      "descripcionCorta": "Casi un tercio de lo que ganas se va en pagar cuotas de créditos.",
+      "importancia": 3,
+      "valorResumen": "Carga financiera ~32%",
+      "esLegal": false
+    }
+  ],
+  "lenses": [
+    {
+      "institutionType": "bank",
+      "nombre": "Banco",
+      "headline": "Te vemos con ingresos estables pero con varias cuotas de crédito activas.",
+      "resumen": "Un banco valora tu estabilidad y pagos puntuales, pero observa que tu carga financiera es alta y eso reduce el margen para nuevos créditos.",
+      "señalesClaves": [
+        {
+          "signalId": "sig_ingresos_estables",
+          "impacto": "positivo",
+          "comentario": "Ingresos estables son un activo en cualquier evaluación."
+        },
+        {
+          "signalId": "sig_pagos_puntuales",
+          "impacto": "positivo",
+          "comentario": "El historial de pago al día es clave."
+        },
+        {
+          "signalId": "sig_carga_financiera_alta",
+          "impacto": "negativo",
+          "comentario": "Carga financiera alta limita capacidad para nuevas obligaciones."
+        }
+      ]
+    },
+    {
+      "institutionType": "fintech",
+      "nombre": "Fintech",
+      "headline": "Vemos un perfil con buen historial pero con varias cuentas activas.",
+      "resumen": "Una fintech valora tu actividad constante y cumplimiento, pero podría ofrecerte herramientas de consolidación de deuda antes que más crédito.",
+      "señalesClaves": [
+        {
+          "signalId": "sig_pagos_puntuales",
+          "impacto": "positivo",
+          "comentario": "Excelente para evaluación de productos digitales."
+        },
+        {
+          "signalId": "sig_carga_financiera_alta",
+          "impacto": "negativo",
+          "comentario": "Sugiere productos de consolidación, no de expansión."
+        }
+      ]
+    },
+    {
+      "institutionType": "estado",
+      "nombre": "Estado / SII",
+      "headline": "Tu cartola y tu declaración están alineadas.",
+      "resumen": "Desde la mirada del Estado, no detectamos brechas de formalidad: lo que entra a tu cuenta es coherente con lo que se declara.",
+      "señalesClaves": [
+        {
+          "signalId": "sig_ingresos_estables",
+          "impacto": "positivo",
+          "comentario": "Ingresos estables y formales facilitan trámites tributarios."
+        }
+      ]
+    }
+  ],
+  "simulationSuggestion": null
+}
