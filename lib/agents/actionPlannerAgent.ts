@@ -31,7 +31,7 @@ en el espejo financiero si la persona modifica un comportamiento concreto.
    - Si "formalizarVentasPct" presente → tipo "formalizar_ingresos", cantidadPct = valor.
    - Si "aumentarSaldoFinMes" presente → tipo "aumentar_saldo_fin_mes", cantidadPct = 0.
 2. Llama simulate_change con el financial_profile y la acción elegida.
-3. Identifica qué señales cambian positivamente (changedSignals).
+3. Identifica qué señales cambian positivamente (changedSignals) — usa los IDs del campo changedSignals del resultado de simulate_change.
 4. Genera explicación en 2-4 frases cubriendo la mirada de Banco, Fintech y Estado.
 
 # Restricciones
@@ -48,9 +48,12 @@ Estructura exacta:
 {
   "accion": { "tipo": string, "cantidadPct": number },
   "descripcionAccion": string,
-  "señalesMejoran": string[],
+  "señalesMejoran": ["sig_uso_cupo_alto", "sig_liquidez_justa"],
   "explicacion": string
 }
+
+El campo "señalesMejoran" SIEMPRE debe ser un array de strings con IDs de señales (puede ser vacío []).
+Ejemplo válido: ["sig_uso_cupo_alto"] o [].
 `.trim()
 
 const client = new Anthropic()
