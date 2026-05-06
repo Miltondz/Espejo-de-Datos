@@ -46,5 +46,6 @@ export interface FinancialProfile {
     ufValor: number
     ipcUltimoMesPct: number
     tpmPct: number
+    tmcPct?: number
   }
 }

@@ -7,6 +7,7 @@ interface Indicadores {
   ufValor: number | null
   ipcPct: number | null
   tpmPct: number | null
+  tmcPct: number | null
   fechaConsulta: string | null
 }
 
@@ -14,7 +15,7 @@ const CLP = (n: number) =>
   new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(n)
 
 export default function DashboardPage() {
-  const [data, setData] = useState<Indicadores>({ ufValor: null, ipcPct: null, tpmPct: null, fechaConsulta: null })
+  const [data, setData] = useState<Indicadores>({ ufValor: null, ipcPct: null, tpmPct: null, tmcPct: null, fechaConsulta: null })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -25,14 +26,16 @@ export default function DashboardPage() {
       fetch(`${BASE}/uf`).then(r => r.json()),
       fetch(`${BASE}/ipc`).then(r => r.json()),
       fetch(`${BASE}/tpm`).then(r => r.json()),
-    ]).then(([uf, ipc, tpm]) => {
+      fetch(`${BASE}/tmc`).then(r => r.json()),
+    ]).then(([uf, ipc, tpm, tmc]) => {
       const ufValor  = uf.status  === 'fulfilled' ? Number(uf.value?.serie?.[0]?.valor)  : null
       const ipcPct   = ipc.status === 'fulfilled' ? Number(ipc.value?.serie?.[0]?.valor) : null
       const tpmPct   = tpm.status === 'fulfilled' ? Number(tpm.value?.serie?.[0]?.valor) : null
+      const tmcPct   = tmc.status === 'fulfilled' ? Number(tmc.value?.serie?.[0]?.valor) : null
       const fecha    = uf.status  === 'fulfilled' ? uf.value?.serie?.[0]?.fecha?.slice(0, 10) : null
 
       if (ufValor === null && ipcPct === null && tpmPct === null) setError(true)
-      setData({ ufValor, ipcPct, tpmPct, fechaConsulta: fecha })
+      setData({ ufValor, ipcPct, tpmPct, tmcPct, fechaConsulta: fecha })
     }).catch(() => setError(true))
       .finally(() => setLoading(false))
   }, [])
@@ -53,6 +56,11 @@ export default function DashboardPage() {
       value: data.tpmPct !== null ? `${data.tpmPct.toFixed(2)}%` : '—',
       sub: 'Tasa de política monetaria',
     },
+    {
+      label: 'TMC',
+      value: data.tmcPct !== null ? `${data.tmcPct.toFixed(2)}%` : '—',
+      sub: 'Tasa máxima convencional',
+    },
   ]
 
   return (
@@ -72,7 +80,7 @@ export default function DashboardPage() {
       </p>
 
       {loading && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="bg-white rounded-xl shadow p-4 text-center animate-pulse">
               <div className="h-3 bg-gray-200 rounded w-2/3 mx-auto mb-2" />
@@ -90,7 +98,7 @@ export default function DashboardPage() {
       )}
 
       {!loading && !error && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {indicadores.map(({ label, value, sub }) => (
             <div key={label} className="bg-white rounded-xl shadow p-4 text-center">
               <p className="text-xs text-gray-500">{label}</p>

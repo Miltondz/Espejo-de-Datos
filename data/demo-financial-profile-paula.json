@@ -30,7 +30,7 @@
     "tieneAvancesEfectivo": true,
     "tieneSobregiros": true,
     "pagosPuntuales": true,
-    "tasaEfectivaEstimadoPct": 42
+    "tasaEfectivaEstimadoPct": 46
   },
   "tributario": {
     "ingresoTributarioEstimado": 5400000,
@@ -40,6 +40,7 @@
   "benchmarks": {
     "ufValor": 36500.12,
     "ipcUltimoMesPct": 0.3,
-    "tpmPct": 4.75
+    "tpmPct": 4.75,
+    "tmcPct": 45
   }
 }

@@ -27,24 +27,27 @@ export interface MacroIndicators {
   ufValor: number
   ipcUltimoMesPct: number
   tpmPct: number
+  tmcPct: number
 }
 
 // ─── TOOL: fetch_macro_indicators ──────────────────────────────────────────
 
 export async function fetchMacroIndicators(_fechaReferencia: string): Promise<MacroIndicators> {
   const BASE = 'https://mindicador.cl/api'
-  const fallback: MacroIndicators = { ufValor: 36500, ipcUltimoMesPct: 0.3, tpmPct: 4.75 }
+  const fallback: MacroIndicators = { ufValor: 36500, ipcUltimoMesPct: 0.3, tpmPct: 4.75, tmcPct: 45 }
 
-  const [ufRes, ipcRes, tpmRes] = await Promise.allSettled([
+  const [ufRes, ipcRes, tpmRes, tmcRes] = await Promise.allSettled([
     fetch(`${BASE}/uf`).then(r => r.json()),
     fetch(`${BASE}/ipc`).then(r => r.json()),
     fetch(`${BASE}/tpm`).then(r => r.json()),
+    fetch(`${BASE}/tmc`).then(r => r.json()),
   ])
 
   return {
     ufValor: ufRes.status === 'fulfilled' ? Number(ufRes.value?.serie?.[0]?.valor ?? fallback.ufValor) : fallback.ufValor,
     ipcUltimoMesPct: ipcRes.status === 'fulfilled' ? Number(ipcRes.value?.serie?.[0]?.valor ?? fallback.ipcUltimoMesPct) : fallback.ipcUltimoMesPct,
     tpmPct: tpmRes.status === 'fulfilled' ? Number(tpmRes.value?.serie?.[0]?.valor ?? fallback.tpmPct) : fallback.tpmPct,
+    tmcPct: tmcRes.status === 'fulfilled' ? Number(tmcRes.value?.serie?.[0]?.valor ?? fallback.tmcPct) : fallback.tmcPct,
   }
 }
 
@@ -180,7 +183,7 @@ export function buildFinancialProfile(
       tieneAvancesEfectivo: tieneAvances,
       tieneSobregiros,
       pagosPuntuales: true,
-      tasaEfectivaEstimadoPct: tieneAvances ? 42 : 28,
+      tasaEfectivaEstimadoPct: tieneAvances ? 46 : 28,
     },
     tributario: {
       ingresoTributarioEstimado: Math.round(ingresosProm * 12 * 0.6),
@@ -191,6 +194,7 @@ export function buildFinancialProfile(
       ufValor: macro.ufValor,
       ipcUltimoMesPct: macro.ipcUltimoMesPct,
       tpmPct: macro.tpmPct,
+      tmcPct: macro.tmcPct,
     },
   }
 }
@@ -227,8 +231,10 @@ export function extractSignalsFromProfile(profile: FinancialProfile): EspejoSign
     signals.push({ id: 'sig_brecha_formalidad', familia: 'formalidad', tipo: 'ambigua', titulo: 'Brecha entre cartola y declaración', descripcionCorta: 'Lo que entra a tu cuenta parece más que lo declarado formalmente.', importancia: 2, valorResumen: `Brecha estimada ~${tributario.brechaFormalidadPct}%`, esLegal: false })
   }
 
-  if ((credito.tasaEfectivaEstimadoPct ?? 0) >= 40) {
-    signals.push({ id: 'sig_tasa_cercana_tmc', familia: 'legal', tipo: 'riesgo', titulo: 'Tasa cercana al máximo legal', descripcionCorta: 'La tasa estimada de tu crédito está cerca del límite legal permitido.', importancia: 2, valorResumen: `Tasa estimada ~${credito.tasaEfectivaEstimadoPct}% anual`, esLegal: true })
+  const tmcUmbral = (profile.benchmarks.tmcPct ?? 45) * 0.90
+  if ((credito.tasaEfectivaEstimadoPct ?? 0) >= tmcUmbral) {
+    const tmcRef = profile.benchmarks.tmcPct ? ` (TMC vigente ~${profile.benchmarks.tmcPct}%)` : ''
+    signals.push({ id: 'sig_tasa_cercana_tmc', familia: 'legal', tipo: 'riesgo', titulo: 'Tasa cercana al máximo legal', descripcionCorta: `La tasa estimada de tu crédito está cerca del límite legal permitido${tmcRef}.`, importancia: 2, valorResumen: `Tasa estimada ~${credito.tasaEfectivaEstimadoPct}% anual`, esLegal: true })
   }
 
   if (credito.pagosPuntuales) {
@@ -323,7 +329,7 @@ export const MIRROR_TOOLS: Anthropic.Tool[] = [
   },
   {
     name: 'fetch_macro_indicators',
-    description: 'Obtiene UF, IPC y TPM oficiales desde mindicador.cl.',
+    description: 'Obtiene UF, IPC, TPM y TMC (Tasa Máxima Convencional) oficiales desde mindicador.cl.',
     input_schema: {
       type: 'object' as const,
       properties: { fecha_referencia: { type: 'string', description: 'Fecha YYYY-MM-DD de referencia' } },

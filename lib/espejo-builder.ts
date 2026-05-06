@@ -110,13 +110,15 @@ function extractSignals(p: FinancialProfile): EspejoSignal[] {
     })
   }
 
-  if (credito.tasaEfectivaEstimadoPct !== undefined && credito.tasaEfectivaEstimadoPct >= 40) {
+  const tmcUmbral = (p.benchmarks.tmcPct ?? 45) * 0.90
+  if (credito.tasaEfectivaEstimadoPct !== undefined && credito.tasaEfectivaEstimadoPct >= tmcUmbral) {
+    const tmcRef = p.benchmarks.tmcPct ? ` (TMC vigente ~${p.benchmarks.tmcPct}%)` : ''
     signals.push({
       id: 'sig_tasa_cercana_tmc',
       familia: 'legal',
       tipo: 'riesgo',
       titulo: 'Tasa cercana al máximo legal',
-      descripcionCorta: 'La tasa estimada de tu crédito está cerca del límite legal permitido.',
+      descripcionCorta: `La tasa estimada de tu crédito está cerca del límite legal permitido${tmcRef}.`,
       importancia: 2,
       valorResumen: `Tasa estimada ~${credito.tasaEfectivaEstimadoPct}% anual`,
       esLegal: true,
