@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { callLetterGeneratorAgent } from '@/lib/agents/letterGeneratorAgent'
+import { getLeyParaProblema } from '@/data/leyes-referencias'
 
 interface CartaRequest {
-  tipoProblema: string
+  tipoProblema:      string
   nombreInstitucion: string
-  tipoProducto: string
-  segmento: 'emprendedora' | 'jubilado'
-  nombreUsuario?: string
-  rutUsuario?: string
+  tipoProducto:      string
+  segmento:          'emprendedora' | 'jubilado'
+  nombreUsuario?:    string
+  rutUsuario?:       string
+  enableThinking?:   boolean
+  enableCitations?:  boolean
 }
 
 export async function POST(req: NextRequest) {
@@ -19,16 +22,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Cuerpo de la solicitud inválido' }, { status: 400 })
   }
 
-  // Ruta principal: agente
+  const tipoProblema = body.tipoProblema ?? 'tasa_cercana_tmc'
+
   if (process.env.ANTHROPIC_API_KEY) {
     try {
+      const ley = (body.enableCitations ?? false) ? getLeyParaProblema(tipoProblema) : null
+
       const result = await callLetterGeneratorAgent({
-        tipoProblema: body.tipoProblema ?? 'tasa_cercana_tmc',
+        tipoProblema,
         nombreInstitucion: body.nombreInstitucion ?? '[Institución]',
-        tipoProducto: body.tipoProducto ?? 'crédito',
-        segmento: body.segmento ?? 'emprendedora',
-        nombreUsuario: body.nombreUsuario,
-        rutUsuario: body.rutUsuario,
+        tipoProducto:      body.tipoProducto ?? 'crédito',
+        segmento:          body.segmento ?? 'emprendedora',
+        nombreUsuario:     body.nombreUsuario,
+        rutUsuario:        body.rutUsuario,
+        enableThinking:    body.enableThinking  ?? false,
+        enableCitations:   body.enableCitations ?? false,
+        ley:               ley ?? undefined,
       })
       return NextResponse.json(result)
     } catch (err) {
@@ -61,5 +70,5 @@ Sin otro particular, saluda atentamente,
 ---
 Para asesoría gratuita: SERNAC (sernac.cl) · CMF Educa (cmfeduca.cl)`
 
-  return NextResponse.json({ cartaTexto })
+  return NextResponse.json({ cartaTexto, modoUsado: 'fallback-determinista' })
 }
