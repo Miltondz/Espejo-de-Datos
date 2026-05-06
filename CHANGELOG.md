@@ -14,6 +14,29 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [0.8.0] — 2026-05-06
+
+### Added
+- `app/api/macro/route.ts` — endpoint GET /api/macro: consolida UF/IPC/TPM/TMC (mindicador.cl) + Dólar observado + IMACEC (Banco Central BDE API)
+- Integración Banco Central BDE — series `F073.TCO.PRE.Z.D` (USD/CLP) y `F032.IMC.IND.Z.Z.EP18.Z.Z.0.M` (IMACEC) con credenciales en `BDE_USER`/`BDE_PASS`
+- `types/profile.ts` — campo `benchmarks.tmcPct` para propagar la TMC real al perfil
+- `/educacion` — 4 leyes chilenas con links directos a bcn.cl (Ley 18.010, 20.555, 19.496, 21.719) + CMF registro instituciones
+
+### Changed
+- `fetchMacroIndicators` — añade TMC real desde mindicador.cl/api/tmc (fallback 45%)
+- `extractSignalsFromProfile` — umbral `sig_tasa_cercana_tmc` es ahora dinámico: `tmcPct * 0.90` (no hardcodeado)
+- `espejo-builder.ts` — mismo fix de umbral dinámico TMC
+- Dashboard migrado a `/api/macro` (fixes arquitectura: fetch externo debe ir por servidor)
+- Dashboard muestra 6 indicadores en grilla 2×3 con badge "BCCh" para datos BDE
+- `mirrorBuilderAgent.ts` + `actionPlannerAgent.ts` — fix parse: extrae JSON aunque Claude añada texto introductorio
+- System prompts reforzados para respuesta JSON pura sin prose
+
+### Fixed
+- Loop agentico ahora completa correctamente: Claude genera textos en lenguaje ciudadano enriquecido (verificado con API key real)
+- `sig_tasa_cercana_tmc` usa TMC real de la API (45% vigente) en vez de umbral fijo 40%
+
+---
+
 ## [0.5.0] — 2026-05-06
 
 ### Added

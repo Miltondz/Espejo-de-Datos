@@ -41,7 +41,9 @@ en el espejo financiero si la persona modifica un comportamiento concreto.
 - Solo una acción simulada (la de mayor impacto).
 
 # Formato de salida
-Devuelve SOLO un JSON válido (sin markdown):
+Tu respuesta final debe ser ÚNICAMENTE el objeto JSON, comenzando con { y terminando con }.
+Sin texto introductorio, sin explicaciones, sin markdown, sin bloques de código.
+Estructura exacta:
 
 {
   "accion": { "tipo": string, "cantidadPct": number },
@@ -74,7 +76,13 @@ export async function callActionPlannerAgent(
       if (!textBlock || textBlock.type !== 'text') {
         throw new Error('ActionPlannerAgent: no text block')
       }
-      const parsed = JSON.parse(textBlock.text) as EspejoSimulationSuggestion
+      const raw = textBlock.text
+      const jsonStart = raw.indexOf('{')
+      const jsonEnd   = raw.lastIndexOf('}')
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('ActionPlannerAgent: no se encontró JSON en la respuesta')
+      }
+      const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1)) as EspejoSimulationSuggestion
       if (!parsed.accion || !parsed.descripcionAccion || !parsed.explicacion) {
         throw new Error('ActionPlannerAgent: campos requeridos ausentes')
       }

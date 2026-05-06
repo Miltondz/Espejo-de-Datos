@@ -41,7 +41,9 @@ para personas en Chile a partir de su cartola bancaria e indicadores macro ofici
 - Máximo 2-3 frases por headline/resumen/descripcionCorta.
 
 # Formato de salida
-Devuelve SOLO un JSON válido con esta estructura exacta (sin markdown, sin texto extra):
+Tu respuesta final debe ser ÚNICAMENTE el objeto JSON, comenzando con { y terminando con }.
+Sin texto introductorio, sin explicaciones, sin markdown, sin bloques de código.
+Estructura exacta:
 
 {
   "profileSummary": {
@@ -83,7 +85,14 @@ export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise
       if (!textBlock || textBlock.type !== 'text') {
         throw new Error('MirrorBuilderAgent: no text block en respuesta final')
       }
-      const parsed = JSON.parse(textBlock.text) as EspejoResponse
+      // Extract JSON even if Claude wraps it in prose
+      const raw = textBlock.text
+      const jsonStart = raw.indexOf('{')
+      const jsonEnd   = raw.lastIndexOf('}')
+      if (jsonStart === -1 || jsonEnd === -1) {
+        throw new Error('MirrorBuilderAgent: no se encontró JSON en la respuesta')
+      }
+      const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1)) as EspejoResponse
       if (!parsed.profileSummary || !Array.isArray(parsed.signals) || !Array.isArray(parsed.lenses)) {
         throw new Error('MirrorBuilderAgent: campos requeridos ausentes en respuesta')
       }
