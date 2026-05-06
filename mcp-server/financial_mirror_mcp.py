@@ -3,10 +3,10 @@ financial_mirror_mcp.py
 
 Servidor MCP para Espejo de Datos.
 Expone 6 tools de dominio que usan los agentes Claude:
-  - fetch_macro_indicators  → UF, IPC, TPM desde mindicador.cl
+  - fetch_macro_indicators  → UF, IPC, TPM, TMC (mindicador.cl) + USD/CLP, IMACEC (BDE)
   - parse_cartola           → stub MVP / futuro parser PDF/Excel
   - build_financial_profile → FinancialProfile determinista
-  - extract_signals         → señales canónicas
+  - extract_signals         → señales canónicas (umbral TMC dinámico)
   - generate_lenses         → vistas Banco / Fintech / Estado
   - simulate_change         → what-if simple
 
@@ -15,8 +15,10 @@ Transporte: stdio (conecta con Claude Desktop o agentes locales).
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any, Dict, List
+import os
+from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -24,49 +26,99 @@ from mcp.server.fastmcp import FastMCP
 mcp = FastMCP(name="financial-mirror-mcp")
 
 MINDICADOR_BASE = "https://mindicador.cl/api"
+BDE_BASE        = "https://si3.bcentral.cl/SieteRestWS/SieteRestWS.ashx"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # TOOL: fetch_macro_indicators
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _bde_url(series_id: str, firstdate: str, lastdate: str) -> Optional[str]:
+    user = os.environ.get("BDE_USER", "")
+    pwd  = os.environ.get("BDE_PASS", "")
+    if not user or not pwd:
+        return None
+    return (
+        f"{BDE_BASE}?user={quote(user)}&pass={quote(pwd)}"
+        f"&function=GetSeries&timeseries={series_id}"
+        f"&firstdate={firstdate}&lastdate={lastdate}"
+    )
+
+def _last_bde_value(data: Dict) -> Optional[float]:
+    try:
+        obs = data.get("Series", {}).get("Obs", [])
+        if obs:
+            return float(obs[-1]["value"])
+    except Exception:
+        pass
+    return None
+
 @mcp.tool()
-async def fetch_macro_indicators(fecha_referencia: str) -> Dict[str, float]:
+async def fetch_macro_indicators(fecha_referencia: str) -> Dict[str, Any]:
     """
-    Obtiene UF, IPC último mes y TPM desde mindicador.cl (Chile).
-    fecha_referencia: 'YYYY-MM-DD' (usado en el futuro para valores históricos).
-    Devuelve fallback 0.0 si la API no responde.
+    Obtiene indicadores macro oficiales:
+      - UF, IPC, TPM, TMC desde mindicador.cl
+      - Dólar observado (F073.TCO.PRE.Z.D) desde Banco Central BDE
+      - IMACEC (F032.IMC.IND.Z.Z.EP18.Z.Z.0.M) desde Banco Central BDE
+    BDE requiere BDE_USER y BDE_PASS en variables de entorno.
+    Devuelve fallback si cualquier fuente falla.
+    fecha_referencia: 'YYYY-MM-DD'.
     """
-    uf_valor = 0.0
-    ipc_pct = 0.0
-    tpm_pct = 0.0
+    FALLBACK: Dict[str, Any] = {
+        "ufValor": 36500.0,
+        "ipcUltimoMesPct": 0.3,
+        "tpmPct": 4.75,
+        "tmcPct": 45.0,
+        "usdClp": None,
+        "imacec": None,
+    }
+
+    today    = fecha_referencia or datetime.now().strftime("%Y-%m-%d")
+    d30_ago  = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    d90_ago  = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
+
+    result = dict(FALLBACK)
 
     async with httpx.AsyncClient(timeout=10.0) as client:
-        try:
-            uf_resp = await client.get(f"{MINDICADOR_BASE}/uf")
-            uf_resp.raise_for_status()
-            uf_valor = float(uf_resp.json()["serie"][0]["valor"])
-        except Exception as e:
-            print(f"[fetch_macro_indicators] UF error: {e}")
 
-        try:
-            ipc_resp = await client.get(f"{MINDICADOR_BASE}/ipc")
-            ipc_resp.raise_for_status()
-            ipc_pct = float(ipc_resp.json()["serie"][0]["valor"])
-        except Exception as e:
-            print(f"[fetch_macro_indicators] IPC error: {e}")
+        # mindicador.cl — UF, IPC, TPM, TMC
+        for key, endpoint, field in [
+            ("ufValor",        "uf",  "ufValor"),
+            ("ipcUltimoMesPct","ipc", "ipcUltimoMesPct"),
+            ("tpmPct",         "tpm", "tpmPct"),
+            ("tmcPct",         "tmc", "tmcPct"),
+        ]:
+            try:
+                resp = await client.get(f"{MINDICADOR_BASE}/{endpoint}")
+                resp.raise_for_status()
+                result[key] = float(resp.json()["serie"][0]["valor"])
+            except Exception as e:
+                print(f"[fetch_macro_indicators] {endpoint.upper()} error: {e}")
 
-        try:
-            tpm_resp = await client.get(f"{MINDICADOR_BASE}/tpm")
-            tpm_resp.raise_for_status()
-            tpm_pct = float(tpm_resp.json()["serie"][0]["valor"])
-        except Exception as e:
-            print(f"[fetch_macro_indicators] TPM error: {e}")
+        # BDE — Dólar observado
+        url = _bde_url("F073.TCO.PRE.Z.D", d30_ago, today)
+        if url:
+            try:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                val = _last_bde_value(resp.json())
+                if val is not None:
+                    result["usdClp"] = val
+            except Exception as e:
+                print(f"[fetch_macro_indicators] BDE USD/CLP error: {e}")
 
-    return {
-        "ufValor": uf_valor,
-        "ipcUltimoMesPct": ipc_pct,
-        "tpmPct": tpm_pct,
-    }
+        # BDE — IMACEC
+        url = _bde_url("F032.IMC.IND.Z.Z.EP18.Z.Z.0.M", d90_ago, today)
+        if url:
+            try:
+                resp = await client.get(url)
+                resp.raise_for_status()
+                val = _last_bde_value(resp.json())
+                if val is not None:
+                    result["imacec"] = val
+            except Exception as e:
+                print(f"[fetch_macro_indicators] BDE IMACEC error: {e}")
+
+    return result
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -196,7 +248,7 @@ def build_financial_profile(
     tiene_sobregiros = meses_neg > 0
 
     uso_cupo = 85.0 if (tiene_avances or tiene_sobregiros) else 40.0
-    tasa_estimada = 42.0 if tiene_avances else 28.0
+    tasa_estimada = 46.0 if tiene_avances else 28.0
 
     return {
         "metadata": {
@@ -241,6 +293,7 @@ def build_financial_profile(
             "ufValor": macro.get("ufValor", 0.0),
             "ipcUltimoMesPct": macro.get("ipcUltimoMesPct", 0.0),
             "tpmPct": macro.get("tpmPct", 0.0),
+            "tmcPct": macro.get("tmcPct", 45.0),
         },
     }
 
@@ -326,11 +379,14 @@ def extract_signals(financial_profile: Dict[str, Any]) -> Dict[str, Any]:
         })
 
     tasa = float(credito.get("tasaEfectivaEstimadoPct", 0.0))
-    if tasa >= 40.0:
+    tmc_pct = float(financial_profile.get("benchmarks", {}).get("tmcPct", 45.0))
+    tmc_umbral = tmc_pct * 0.90
+    if tasa >= tmc_umbral:
+        tmc_ref = f" (TMC vigente ~{tmc_pct:.0f}%)" if tmc_pct else ""
         signals.append({
             "id": "sig_tasa_cercana_tmc", "familia": "legal", "tipo": "riesgo",
             "titulo": "Tasa cercana al máximo legal",
-            "descripcionCorta": "La tasa estimada de tu crédito está cerca del límite legal permitido.",
+            "descripcionCorta": f"La tasa estimada de tu crédito está cerca del límite legal permitido{tmc_ref}.",
             "importancia": 2, "valorResumen": f"Tasa estimada ~{tasa:.1f}% anual", "esLegal": True,
         })
 
@@ -478,9 +534,12 @@ def simulate_change(
 @mcp.resource("macro-indicator://{tipo}")
 def macro_indicator_resource(tipo: str) -> str:
     descriptions = {
-        "uf":  "UF (Unidad de Fomento): valor indexado a la inflación, usado en créditos hipotecarios y arriendos.",
-        "ipc": "IPC (Índice de Precios al Consumidor): mide la variación mensual de los precios de la canasta básica.",
-        "tpm": "TPM (Tasa de Política Monetaria): tasa de referencia fijada por el Banco Central de Chile.",
+        "uf":     "UF (Unidad de Fomento): valor diario indexado a la inflación, usado en créditos hipotecarios, arriendos y contratos. Fuente: mindicador.cl.",
+        "ipc":    "IPC (Índice de Precios al Consumidor): mide la variación mensual de los precios de la canasta básica. Publicado por el INE. Fuente: mindicador.cl.",
+        "tpm":    "TPM (Tasa de Política Monetaria): tasa de referencia fijada por el Banco Central de Chile en cada reunión de política monetaria. Fuente: mindicador.cl.",
+        "tmc":    "TMC (Tasa Máxima Convencional): límite legal máximo de interés que puede cobrar cualquier institución en Chile, fijada trimestralmente por la CMF. Si tu tasa la supera, tienes derecho a reclamar. Fuente: mindicador.cl.",
+        "usd":    "Dólar observado (USD/CLP): tipo de cambio oficial peso-dólar publicado diariamente por el Banco Central de Chile. Fuente: BDE API (serie F073.TCO.PRE.Z.D).",
+        "imacec": "IMACEC (Indicador Mensual de Actividad Económica): mide la evolución mensual de la actividad económica en Chile, equivalente a un PIB mensual. Fuente: BDE API (serie F032.IMC.IND.Z.Z.EP18.Z.Z.0.M).",
     }
     return descriptions.get(tipo, f"Indicador desconocido: {tipo}")
 
