@@ -9,12 +9,32 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-- MCP server Python con 6 tools (parse_cartola, fetch_macro_indicators, build_financial_profile, extract_signals, generate_lenses, simulate_change)
 - MirrorBuilderAgent conectado a `/api/analyze`
 - ActionPlannerAgent conectado a `/api/simulate`
 - LetterGeneratorAgent conectado a `/api/generar-carta`
 - Pasaporte imprimible con `@media print`
 - Frontend polish (Alejandra) — diseño visual y UX
+
+---
+
+## [0.4.0] — 2026-05-06
+
+### Added
+- `mcp-server/financial_mirror_mcp.py` — servidor MCP completo con 6 tools:
+  - `fetch_macro_indicators` — UF, IPC, TPM desde mindicador.cl (async httpx)
+  - `parse_cartola` — stub MVP con transacciones reales para Paula (3 meses) y Luis
+  - `build_financial_profile` — cálculo determinista de FinancialProfile desde transacciones + macro
+  - `extract_signals` — 8 señales canónicas con reglas de umbral
+  - `generate_lenses` — lentes Banco / Fintech / Estado con impactos por señal
+  - `simulate_change` — what-if para `reducir_uso_cupo`, `reducir_avances`, `formalizar_ingresos`
+- Resource `macro-indicator://{tipo}` — descripción de UF/IPC/TPM
+- Prompt `explain_indicator` — plantilla lenguaje ciudadano
+- `mcp-server/requirements.txt` — `fastmcp>=0.4.0`, `httpx>=0.27.0`
+
+### Notes
+- Sintaxis verificada (`ast.parse`)
+- Import verificado con dependencias instaladas (`fastmcp`, `httpx`)
+- Transporte: stdio (compatible con Claude Desktop y agentes locales)
 
 ---
 
