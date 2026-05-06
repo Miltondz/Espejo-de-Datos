@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getFinancialProfileFromMock } from '@/lib/data-adapter'
-import { buildEspejoFromProfile } from '@/lib/espejo-builder'
+import { buildEspejoFromProfile, buildSimulationSuggestion } from '@/lib/espejo-builder'
 import { callMirrorBuilderAgent } from '@/lib/agents/mirrorBuilderAgent'
 import type { Segmento } from '@/types/espejo'
 
@@ -37,8 +37,10 @@ export async function POST(req: NextRequest) {
         cartola: { filePath: `demo://${body.demoId}` },
         fechaReferencia: hoy,
       })
-      // Asegurar nombreDemo en profileSummary
       espejo.profileSummary.nombreDemo = nombreDemo
+      if (!espejo.simulationSuggestion) {
+        espejo.simulationSuggestion = buildSimulationSuggestion(espejo.signals)
+      }
       return NextResponse.json(espejo)
     } catch (err) {
       console.error('[/api/analyze] Agente falló, usando fallback determinista:', err)

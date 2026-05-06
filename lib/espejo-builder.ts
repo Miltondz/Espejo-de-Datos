@@ -194,7 +194,7 @@ function buildLenses(p: FinancialProfile, signals: EspejoSignal[]): EspejoLens[]
   ]
 }
 
-function buildSimulationSuggestion(
+export function buildSimulationSuggestion(
   signals: EspejoSignal[]
 ): EspejoSimulationSuggestion | undefined {
   const ids = new Set(signals.map(s => s.id))
