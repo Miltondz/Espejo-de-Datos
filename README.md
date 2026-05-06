@@ -1,283 +1,128 @@
-# Espejo de Datos (Espejo Financiero)
+# Espejo de Datos
 
-> Convierte tu cartola bancaria en un **espejo financiero ciudadano**: un resumen legible de cómo te ven Banco, Fintech y Estado, con señales claras y simulaciones “what‑if”.
+> Convierte tu cartola bancaria en un **espejo financiero ciudadano**: descubre cómo te ven Banco, Fintech y Estado, con señales explicables y simulaciones "¿qué pasaría si…?".
 
----
-
-## 1. Visión general
-
-Espejo de Datos es un MVP construido para un hackatón con Anthropic. El flujo principal:
-
-1. La persona sube una **cartola** (o usa un perfil demo, como “Paula”).
-2. Un **servidor MCP en Python** parsea la cartola y obtiene indicadores macro (UF, IPC, TPM).[web:232][web:335][web:339]
-3. Un **agente Claude** construye un `FinancialProfile` y un `EspejoResponse` con:
-   - resumen de perfil,
-   - señales (positivas, ambiguas, riesgo y legales),
-   - lentes de Banco / Fintech / Estado.
-4. El usuario puede simular un cambio (“¿qué pasa si bajo mi uso de cupo 20%?”) y ver el impacto.
-
-El enfoque es **explicabilidad y educación**, no scoring opaco ni toma de decisiones de crédito.
+Construido para el **Claude Impact Lab Chile 2026** — Línea 01 Inclusión Financiera.
 
 ---
 
-## 2. Stack técnico
+## Stack
 
-- **Frontend / Backend web**
-  - Next.js 14 (App Router) + React + TypeScript.[web:365][web:370]
-  - Tailwind CSS para estilos.
-
-- **IA y agentes**
-  - Claude Sonnet 4.6 vía `@anthropic-ai/sdk`.
-  - Agentes:
-    - `MirrorBuilderAgent` (construye el espejo desde cartola + MCP).
-    - `ActionPlannerAgent` (simula cambios “what‑if” y los explica).[web:312][web:311]
-
-- **MCP server**
-  - Python 3.10+.
-  - `fastmcp` / MCP Python SDK para exponer tools y resources.[web:335][web:339]
-  - Archivo principal: `financial_mirror_mcp.py`.
-
-- **Contratos de datos**
-  - `FinancialProfile` en `types/profile.ts`.
-  - `EspejoResponse` en `types/espejo.ts` (lo que consume el frontend).
+| Capa | Tecnología |
+|---|---|
+| Frontend / API | Next.js 14 App Router + TypeScript + Tailwind CSS |
+| IA | Claude API (`claude-sonnet-4-6`) vía `@anthropic-ai/sdk` |
+| MCP server | Python + FastMCP (`financial-mirror-mcp`) |
+| Persistencia | Ninguna — todo en memoria, sin DB |
+| Deploy | Vercel (Next.js) + local stdio (MCP) |
 
 ---
 
-## 3. Estructura de carpetas (propuesta)
+## Correr local
 
-```text
-espejo-datos/
-  app/
-    layout.tsx
-    page.tsx                # Landing
-    analizador/
-      page.tsx              # Pantalla principal Espejo
-    dashboard/
-      page.tsx
-    educacion/
-      page.tsx
-    historial/
-      page.tsx
-    comunidad/
-      page.tsx
-    api/
-      analyze/
-        route.ts            # POST /api/analyze
-      simulate/
-        route.ts            # POST /api/simulate
-      generar-carta/
-        route.ts            # POST /api/generar-carta
-  components/
-    espejo/
-      ProfileSummaryCard.tsx
-      SignalsGrid.tsx
-      InstitutionLensesTabs.tsx
-      SimulationPanel.tsx
-      CartolaUpload.tsx
-      PasaporteButton.tsx
-      CartaModal.tsx
-  lib/
-    data-adapter.ts         # transforma cartola/macro → FinancialProfile
-    espejo-builder.ts       # FinancialProfile → EspejoResponse
-    simulation.ts           # lógica determinista de simulación
-    agents/
-      mirrorBuilderAgent.ts
-      actionPlannerAgent.ts
-  types/
-    profile.ts              # FinancialProfile
-    espejo.ts               # EspejoResponse y subtipos
-  data/
-    demo-espejo-paula.json
-    demo-financial-profile-paula.json
-  mcp-server/
-    financial_mirror_mcp.py # servidor MCP Python
-  .claude/
-    CLAUDE.md               # instrucciones para Claude Code
-  README.md
-```
-
----
-
-## 4. Flujo principal (alto nivel)
-
-### 4.1. `/api/analyze`
-
-1. **Modo demo**
-   - `POST /api/analyze` con `{ "mode": "demo", "demoId": "paula", "segmento": "emprendedora" }`.
-   - La API usa un `FinancialProfile` mock + `espejo-builder.ts` para devolver un `EspejoResponse` determinista.
-
-2. **Modo cartola real**
-   - `POST /api/analyze` con `multipart/form-data` (`file`, `segmento`).
-   - Flujo:
-     1. El backend guarda el archivo temporalmente.
-     2. Llama a `MirrorBuilderAgent` con un JSON tipo:
-
-        ```json
-        {
-          "task": "build_espejo",
-          "segmento": "emprendedora",
-          "cartola": { "filePath": "/tmp/cartola-paula.pdf" },
-          "fechaReferencia": "2026-03-31"
-        }
-        ```
-
-     3. El agente usa MCP:
-        - `parse_cartola(file_path)`,
-        - `fetch_macro_indicators(fecha_referencia)`,
-        - `build_financial_profile`,
-        - `extract_signals`,
-        - `generate_lenses`.
-     4. Devuelve un `EspejoResponse` listo para el frontend.
-
-### 4.2. `/api/simulate`
-
-- `POST /api/simulate` con:
-
-  ```json
-  {
-    "segmento": "emprendedora",
-    "goal": "mejorar_estabilidad_y_menos_dependencia_credito",
-    "hypothesis": { "reducirUsoCupoPct": 20 },
-    "financialProfile": { "...": "perfil actual" },
-    "signals": [ "...": "señales actuales" ]
-  }
-  ```
-
-- La API llama a `ActionPlannerAgent`, que usa MCP `simulate_change` para:
-  - producir un nuevo perfil (opcional),
-  - devolver `simulationSuggestion` (acción + explicación).
-
----
-
-## 5. MCP Python: tools clave
-
-Archivo: `mcp-server/financial_mirror_mcp.py`.
-
-Tools principales:
-
-- `parse_cartola(file_path: str) -> { transacciones, periodoMeses, institucionesDetectadas }`  
-  Stub MVP: devuelve movimientos de ejemplo según nombre de archivo.
-
-- `fetch_macro_indicators(fecha_referencia: str) -> { ufValor, ipcUltimoMesPct, tpmPct }`  
-  Llama a `https://mindicador.cl/api` (UF, IPC, TPM).[web:232][web:335][web:339]
-
-- `build_financial_profile(transacciones, periodoMeses, macro, fuenteDatos)`  
-  Calcula un `FinancialProfile` determinista (sin IA).
-
-- `extract_signals(financial_profile) -> { signals: EspejoSignal[] }`  
-  Reglas simples (uso de cupo alto, liquidez justa, ingresos irregulares, brecha de formalidad, señal legal demo).
-
-- `generate_lenses(financial_profile, signals) -> { lenses: EspejoLens[] }`  
-  Construye tres lentes: Banco, Fintech y Estado.
-
-- `simulate_change(financial_profile, action) -> { newProfile, changedSignals[] }`  
-  Aplica acciones “what‑if” tipo `reducir_uso_cupo`.
-
-Resources y prompt:
-
-- `macro-indicator://{tipo}` (uf|ipc|tpm) → explicación corta.
-- `explain_indicator(indicator)` → prompt reusable para explicar un indicador.
-
----
-
-## 6. Puesta en marcha (desarrollo)
-
-### 6.1. Requisitos
-
-- Node.js 20+
-- pnpm / npm / yarn
-- Python 3.10+
-- API key de Anthropic (para Claude)
-- Acceso a internet para `mindicador.cl`[web:232]
-
-### 6.2. Instalación
+**Requisitos:** Node.js 20+, Python 3.10+
 
 ```bash
-# Clonar el repo
-git clone https://github.com/<ORG>/<REPO>.git
-cd <REPO>
+# 1. Clonar e instalar
+git clone https://github.com/Miltondz/Espejo-de-Datos.git
+cd Espejo-de-Datos
+npm install
 
-# Backend / Frontend
-pnpm install            # o npm install / yarn
+# 2. Variables de entorno (solo necesario para los agentes IA)
+echo "ANTHROPIC_API_KEY=sk-ant-..." > .env.local
 
-# MCP Python
+# 3. Correr Next.js
+npm run dev
+# → http://localhost:3000
+
+# 4. Correr MCP server (segunda terminal, cuando esté implementado)
 cd mcp-server
 python -m venv .venv
-source .venv/bin/activate      # Windows: .venv\Scripts\activate
+.venv\Scripts\activate        # Windows
+# source .venv/bin/activate   # Mac/Linux
 pip install fastmcp httpx
-```
-
-Configurar variables de entorno (crear `.env.local`):
-
-```bash
-ANTHROPIC_API_KEY=tu_api_key
-# Opcional: puertos específicos, etc.
-```
-
-### 6.3. Ejecutar en desarrollo
-
-En una terminal (Next.js):
-
-```bash
-pnpm dev
-# o npm run dev
-```
-
-En otra terminal (MCP):
-
-```bash
-cd mcp-server
-source .venv/bin/activate
 python financial_mirror_mcp.py
 ```
 
----
-
-## 7. Uso de Claude Code en este repo
-
-Este repo incluye un `CLAUDE.md` con reglas para Claude Code (estructura del proyecto, contratos de datos, roles de skills).  
-Recomendado según mejores prácticas oficiales:[web:368][web:371][web:374]
-
-- Mantener `CLAUDE.md` **breve y estable**.
-- Usar prompts estructurados con:
-  - contexto → intención → formato de salida.[web:287][web:296]
-- Hacer que Claude Code:
-  - primero genere un **plan**,
-  - luego aplique cambios en archivos específicos.[web:374]
-
-Roles típicos de uso:
-
-- Alejandra:
-  - `espejo-frontend-builder`: componentes y páginas.
-  - `espejo-copy-and-narrative-writer`: textos ciudadanos.
-- Milton:
-  - `espejo-dal-and-domain-builder`: lógica de dominio TS.
-  - `espejo-api-routes-builder`: endpoints.
-  - `espejo-mcp-tools-builder`: MCP Python.
-  - `espejo-agents-designer`: prompts de agentes.
+> El modo demo (`/analizador` → "Probar con Paula") funciona **sin API key** ni MCP server.
 
 ---
 
-## 8. Estado actual del MVP
+## Estructura
 
-- 🔜 Front `/analizador` conectado a JSON demo (Paula).
-- 🔄 MCP Python con tools stub y `fetch_macro_indicators`.
-- 🔜 Integración de `MirrorBuilderAgent` con `/api/analyze`.
-- 🔜 Integración de `ActionPlannerAgent` con `/api/simulate`.
-- 🔜 Pasaporte imprimible y generador de carta demo.
+```
+app/
+  page.tsx                    # Landing
+  analizador/page.tsx         # Core — upload + espejo completo
+  dashboard/page.tsx          # Indicadores macro
+  educacion/page.tsx          # Recursos CMF, SERNAC, BCN
+  api/
+    analyze/route.ts          # POST /api/analyze
+    simulate/route.ts         # POST /api/simulate
+    generar-carta/route.ts    # POST /api/generar-carta
+components/espejo/            # 8 componentes UI
+lib/
+  data-adapter.ts             # DAL: mock → FinancialProfile
+  espejo-builder.ts           # FinancialProfile → EspejoResponse
+  agents/                     # Helpers de agentes Claude (día 1 tarde)
+types/
+  profile.ts                  # FinancialProfile (dominio interno)
+  espejo.ts                   # EspejoResponse (contrato frontend)
+data/                         # Fixtures demo Paula y Luis
+mcp-server/                   # Python FastMCP (día 1 tarde)
+.claude/commands/             # 6 skills para Claude Code
+```
 
-✅🔄🔜
 ---
 
-## 9. Licencia
+## Disclaimer
 
-Por definir.
+Espejo de Datos es una herramienta educativa. No es asesoría financiera ni legal. No predice decisiones de bancos, fintech ni organismos del Estado. Tus datos se procesan en memoria y nunca se guardan.
 
 ---
 
-## 10. Contacto del equipo
+## Equipo
 
-- Arquitectura / Backend / IA: Milton
-- Liderazgo / Frontend / UX: Alejandra
-- Negocio / Adopción: Adolfo
-- Legal / Datos Personales: Renzo
+| Rol | Persona |
+|---|---|
+| Arquitectura / Backend / IA | Milton |
+| Liderazgo / Frontend / UX | Alejandra |
+| Negocio / Adopción | Adolfo |
+| Legal / Datos Personales | Renzo |
+
+---
+
+## Roadmap — Hackathon 6–7 mayo 2026
+
+### Día 1 — 6 mayo
+
+| Hora (UTC-4) | Bloque | Estado |
+|---|---|---|
+| 00:00 → en curso | **Scaffold MVP** — Next.js, tipos, DAL, espejo-builder, 3 API routes, 8 componentes, 6 skills | ✅ |
+| En curso → 19:00 | **Frontend polish** — layout, diseño Tailwind, UX `/analizador` (Alejandra) | 🔄 |
+| 19:00 → 21:00 | **MCP server** — 6 tools Python (parse_cartola, fetch_macro_indicators, build_financial_profile, extract_signals, generate_lenses, simulate_change) | 🔜 |
+| 21:00 → 23:59 | **Integración agentes** — MirrorBuilderAgent + ActionPlannerAgent conectados a `/api/analyze` y `/api/simulate` | 🔜 |
+
+### Día 2 — 7 mayo
+
+| Hora (UTC-4) | Bloque | Estado |
+|---|---|---|
+| 09:00 → 11:00 | **Easy wins** — Pasaporte imprimible (`@media print`), SimulationPanel slider, CartaModal con LetterGeneratorAgent | 🔜 |
+| 11:00 → 14:00 | **QA + demo script** — Flujo Paula feliz + fallbacks + mobile | 🔜 |
+| 14:00 → 17:00 | **Pitch + Ficha Cívica** — Grabación video demo, entrega portal | 🔜 |
+| **17:00** | **Deadline entrega técnica** | ⏰ |
+
+### Post-hackathon (roadmap producto)
+
+| Hito | Descripción |
+|---|---|
+| v0.5 — 30 días | Upload real de cartola PDF/Excel con parser |
+| v0.6 — 60 días | Integración Open Finance / SFA cuando esté disponible |
+| v1.0 — 90 días | Historial de análisis opt-in, comparación de períodos |
+| v1.x | Canal B2G — integración con programas FOSIS, BancoEstado MiPyme |
+
+---
+
+## Changelog
+
+Ver [CHANGELOG.md](./CHANGELOG.md) para el historial detallado de cambios.
