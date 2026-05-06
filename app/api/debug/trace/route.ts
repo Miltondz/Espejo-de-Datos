@@ -8,26 +8,11 @@ import { NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
 import { MIRROR_TOOLS, executeTool } from '@/lib/agents/toolImplementations'
 import { MIRROR_BUILDER_SYSTEM_PROMPT } from '@/lib/agents/mirrorBuilderAgent'
+import type { ToolCallTrace, AgentTraceResponse } from '@/types/debug'
 
-export interface ToolCallTrace {
-  round:     number
-  tool:      string
-  inputSummary: string
-  outputSummary: string
-  elapsedMs: number
-  status:    'ok' | 'error'
-}
+export const dynamic = 'force-dynamic'
 
-export interface AgentTraceResponse {
-  model:      string
-  demoId:     string
-  totalMs:    number
-  rounds:     number
-  trace:      ToolCallTrace[]
-  finalSignals: Array<{ id: string; tipo: string; titulo: string }>
-  success:    boolean
-  error?:     string
-}
+export type { ToolCallTrace, AgentTraceResponse }
 
 function summarizeInput(name: string, input: Record<string, unknown>): string {
   switch (name) {

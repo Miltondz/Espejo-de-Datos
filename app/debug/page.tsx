@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { AgentTraceResponse, ToolCallTrace } from '@/app/api/debug/trace/route'
+import type { AgentTraceResponse, ToolCallTrace } from '@/types/debug'
 
 const TOOL_COLORS: Record<string, string> = {
   parse_cartola:          'text-yellow-400',
