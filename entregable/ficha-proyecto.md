@@ -27,18 +27,14 @@
 
 ## 3. Canal de adopción concreto
 
-**Canal principal: WhatsApp + navegador web (sin descarga)**
+| Canal | Detalle | Estado MVP |
+|---|---|---|
+| **B2G — primario** | Programa de educación financiera CMF Educa, SERNAC y municipios con fomento productivo | Identificado · pendiente contacto formal post-Lab |
+| **B2NGO — secundario** | ONGs de inclusión financiera: ASECH, Fundación ChileMujeres, FINCA | Identificado como Fase 2 |
+| **B2C — directo** | App pública para usuarios individuales | Existe y funciona · no es el foco de impacto del MVP |
 
-| Atributo | Detalle |
-|---|---|
-| **Canal** | WhatsApp — enlace compartible directo a `espejo-de-datos.vercel.app` |
-| **Penetración** | WhatsApp tiene >90% de penetración entre usuarios de smartphone en Chile (SUBTEL, 2023) |
-| **Fricción** | Cero: sin app que instalar, sin cuenta que crear, sin RUT requerido |
-| **Dispositivo mínimo** | Cualquier browser en celular de gama baja — diseñado para pantallas de 360 px |
-| **Flujo** | Usuario recibe link por WhatsApp → abre en browser → carga demo o PDF → obtiene análisis en <30 s |
-| **Canales complementarios** | QR imprimible para sucursales bancarias, CMF Educa, SERNAC |
-
-**Justificación:** el 94% de los chilenos con smartphone usa WhatsApp diariamente (fuente: Ipsos Digital Report 2023). Es el canal cero-fricción para llegar a segmentos C2-D sin pasar por una app store.
+**Justificación del canal B2G como primario:**
+Las instituciones públicas (CMF Educa, SERNAC, municipios) ya tienen el mandato legal y los canales de llegada a los segmentos C2-D. Espejo de Datos no necesita construir distribución desde cero — se integra como herramienta a los programas existentes de educación financiera ciudadana, que llegan a cientos de miles de personas por año a costo marginal cercano a cero para el producto.
 
 ---
 

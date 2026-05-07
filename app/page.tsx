@@ -425,17 +425,29 @@ export default function Home() {
             {/* Canal */}
             <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="text-xl" aria-hidden="true">📲</span>
+                <span className="text-xl" aria-hidden="true">🏛️</span>
                 <h3 className="text-sm font-bold text-emerald-900">Canal de adopción</h3>
               </div>
-              <p className="text-sm text-emerald-800 leading-relaxed">
-                Compartible por <strong>WhatsApp</strong> con un enlace directo.
-                Sin app que instalar, sin cuenta que crear. Funciona en cualquier
-                navegador de celular — diseñado para pantallas de 360 px (gama baja).
-              </p>
-              <p className="text-xs text-emerald-700 font-medium">
-                WhatsApp · {'>'}90% penetración en Chile · cero fricciones de onboarding
-              </p>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-[10px] font-bold bg-emerald-600 text-white px-1.5 py-0.5 rounded mt-0.5 shrink-0">B2G</span>
+                  <p className="text-xs text-emerald-800 leading-relaxed">
+                    <strong>Canal primario:</strong> programa de educación financiera CMF Educa, SERNAC y municipios con fomento productivo.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[10px] font-bold bg-emerald-400 text-white px-1.5 py-0.5 rounded mt-0.5 shrink-0">ONG</span>
+                  <p className="text-xs text-emerald-800 leading-relaxed">
+                    <strong>Fase 2:</strong> ONGs de inclusión financiera — ASECH, Fundación ChileMujeres, FINCA.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-[10px] font-bold bg-gray-400 text-white px-1.5 py-0.5 rounded mt-0.5 shrink-0">B2C</span>
+                  <p className="text-xs text-emerald-800 leading-relaxed">
+                    App pública disponible — no es el foco de impacto del MVP.
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Impacto */}
