@@ -1,43 +1,89 @@
 import Link from 'next/link'
 
+const SECCIONES = [
+  { id: 'glosario',  icon: '📖', label: 'Glosario' },
+  { id: 'leyes',     icon: '⚖️',  label: 'Leyes' },
+  { id: 'recursos',  icon: '🏛️', label: 'Recursos' },
+]
+
 const glosario = [
   {
     termino: 'DTI — Deuda sobre ingresos',
+    icon: '📊',
+    tag: 'Endeudamiento',
+    accent: 'bg-orange-50 border-orange-200',
+    tagColor: 'bg-orange-100 text-orange-700',
+    termColor: 'text-orange-700',
     definicion: 'El porcentaje de tus ingresos mensuales que ya va comprometido pagando deudas. Por encima del 50%, los bancos lo marcan como riesgo.',
     ejemplo: 'Ganas $800.000 y pagas $450.000 en cuotas → DTI = 56%.',
   },
   {
     termino: 'Cupo de crédito',
+    icon: '💳',
+    tag: 'Tarjeta',
+    accent: 'bg-blue-50 border-blue-200',
+    tagColor: 'bg-blue-100 text-blue-700',
+    termColor: 'text-blue-700',
     definicion: 'El límite máximo de tu tarjeta. Usar más del 70% es señal de presión financiera para bancos y fintechs.',
     ejemplo: 'Cupo $500.000, deuda $420.000 → uso 84% → señal en rojo.',
   },
   {
     termino: 'TMC — Tasa Máxima Convencional',
+    icon: '🚨',
+    tag: 'Límite legal',
+    accent: 'bg-red-50 border-red-200',
+    tagColor: 'bg-red-100 text-red-700',
+    termColor: 'text-red-700',
     definicion: 'El límite legal de interés anual que cualquier institución puede cobrarte. La CMF lo fija mensualmente. Superarlo es ilegal.',
     ejemplo: 'Si la TMC es 36% anual y tu crédito cobra 40%, tienes derecho a reclamar ante el SERNAC.',
   },
   {
     termino: 'Avance de efectivo',
+    icon: '💸',
+    tag: 'Costo alto',
+    accent: 'bg-amber-50 border-amber-200',
+    tagColor: 'bg-amber-100 text-amber-700',
+    termColor: 'text-amber-700',
     definicion: 'Sacar plata en efectivo con la tarjeta de crédito. Tiene la tasa más alta de cualquier producto bancario — muchas veces cerca de la TMC.',
     ejemplo: 'Un avance de $100.000 puede costarte $8.000 extra solo en intereses el primer mes.',
   },
   {
     termino: 'Brecha de formalidad',
+    icon: '📋',
+    tag: 'SII / Ingresos',
+    accent: 'bg-emerald-50 border-emerald-200',
+    tagColor: 'bg-emerald-100 text-emerald-700',
+    termColor: 'text-emerald-700',
     definicion: 'La diferencia entre lo que recibes en tu cuenta y lo que declaras al SII. Una brecha alta limita tu acceso a crédito formal.',
     ejemplo: 'Recibes $700.000 pero el SII ve $300.000 declarados → los bancos evalúan sobre los $300.000.',
   },
   {
     termino: 'Sobregiro',
+    icon: '⚠️',
+    tag: 'Saldo negativo',
+    accent: 'bg-rose-50 border-rose-200',
+    tagColor: 'bg-rose-100 text-rose-700',
+    termColor: 'text-rose-700',
     definicion: 'Cuando tu cuenta queda en negativo — el banco pagó por ti. Es caro y afecta tu historial.',
-    ejemplo: 'Saldo $0, pago de $30.000 automático → cuenta queda en -$30.000 → el banco cobra interés sobre ese saldo.',
+    ejemplo: 'Saldo $0, pago automático de $30.000 → cuenta en -$30.000 → el banco cobra interés sobre ese saldo.',
   },
   {
     termino: 'TPM — Tasa de Política Monetaria',
+    icon: '🏦',
+    tag: 'Banco Central',
+    accent: 'bg-indigo-50 border-indigo-200',
+    tagColor: 'bg-indigo-100 text-indigo-700',
+    termColor: 'text-indigo-700',
     definicion: 'La tasa base del Banco Central. Cuando sube, todos los créditos se encarecen. Cuando baja, los créditos se abaratan.',
     ejemplo: 'Con TPM en 5%, un crédito de consumo puede estar en 20–30%. Con TPM en 2%, baja considerablemente.',
   },
   {
     termino: 'Score crediticio',
+    icon: '🔢',
+    tag: 'Perfil de riesgo',
+    accent: 'bg-purple-50 border-purple-200',
+    tagColor: 'bg-purple-100 text-purple-700',
+    termColor: 'text-purple-700',
     definicion: 'Puntaje interno que usan bancos y fintechs para decidir si te prestan. No existe un número único — cada institución tiene el suyo y no están obligados a mostrártelo.',
     ejemplo: 'El Espejo no calcula tu score, pero muestra las señales que más lo afectan.',
   },
@@ -121,6 +167,7 @@ const recursos = [
 export default function EducacionPage() {
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl space-y-12">
+
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-2xl font-black text-gray-900 tracking-tight">Educación Financiera</h1>
@@ -130,32 +177,60 @@ export default function EducacionPage() {
         </p>
       </div>
 
+      {/* Nav de secciones */}
+      <nav className="flex flex-wrap gap-2">
+        {SECCIONES.map(s => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-gray-200 text-sm font-semibold text-gray-700 shadow-sm hover:border-blue-300 hover:text-blue-700 hover:bg-blue-50 transition-all"
+          >
+            <span aria-hidden="true">{s.icon}</span>
+            {s.label}
+          </a>
+        ))}
+      </nav>
+
       {/* Glosario */}
-      <section className="space-y-5">
-        <div>
-          <h2 className="text-lg font-bold text-gray-900">Glosario ciudadano</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Los términos que los bancos usan — explicados sin jerga
-          </p>
+      <section id="glosario" className="space-y-5 scroll-mt-20">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">Glosario ciudadano</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Los términos que los bancos usan — explicados sin jerga
+            </p>
+          </div>
+          <span className="text-xs text-gray-400 shrink-0">{glosario.length} términos</span>
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {glosario.map(g => (
             <div
               key={g.termino}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 space-y-2"
+              className={`rounded-2xl border p-5 space-y-3 shadow-sm hover:shadow-md transition-shadow ${g.accent}`}
             >
-              <p className="font-bold text-sm text-gray-900">{g.termino}</p>
-              <p className="text-sm text-gray-600 leading-relaxed">{g.definicion}</p>
-              <p className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 leading-relaxed">
-                <span className="font-semibold text-slate-600">Ej: </span>{g.ejemplo}
-              </p>
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl shrink-0" aria-hidden="true">{g.icon}</span>
+                  <p className={`font-bold text-sm leading-tight ${g.termColor}`}>{g.termino}</p>
+                </div>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${g.tagColor}`}>
+                  {g.tag}
+                </span>
+              </div>
+              <p className="text-sm text-gray-700 leading-relaxed">{g.definicion}</p>
+              <div className="bg-white/70 rounded-lg px-3 py-2">
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  <span className="font-semibold text-gray-700">Ejemplo: </span>{g.ejemplo}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* Leyes */}
-      <section className="space-y-5">
+      <section id="leyes" className="space-y-5 scroll-mt-20">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Leyes que te protegen</h2>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -192,7 +267,7 @@ export default function EducacionPage() {
       </section>
 
       {/* Recursos */}
-      <section className="space-y-5">
+      <section id="recursos" className="space-y-5 scroll-mt-20">
         <div>
           <h2 className="text-lg font-bold text-gray-900">Recursos oficiales</h2>
           <p className="text-sm text-gray-500 mt-0.5">
