@@ -42,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="flex flex-wrap gap-4 justify-center">
                 <Link href="/educacion" className="hover:text-blue-600 transition-colors">Educación</Link>
                 <Link href="/dashboard" className="hover:text-blue-600 transition-colors">Indicadores</Link>
+                <Link href="/nosotros" className="hover:text-blue-600 transition-colors">Equipo</Link>
                 <a
                   href="https://sernac.cl"
                   target="_blank"

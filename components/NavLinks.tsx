@@ -7,6 +7,7 @@ const links = [
   { href: '/analizador', label: 'Tu Espejo' },
   { href: '/dashboard', label: 'Indicadores' },
   { href: '/educacion', label: 'Educación' },
+  { href: '/nosotros', label: 'Equipo' },
 ]
 
 export default function NavLinks() {
