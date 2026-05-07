@@ -396,8 +396,8 @@ export default function Home() {
           <div className="bg-gray-900 rounded-2xl px-8 py-6 text-white text-center space-y-2">
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">El problema</p>
             <p className="text-lg md:text-xl font-semibold leading-relaxed max-w-2xl mx-auto">
-              "Tu banco ya sabe cómo eres financieramente. Tú no. Espejo de Datos te muestra la misma
-              lectura que ellos hacen — en lenguaje simple, sin guardar tus datos."
+              &ldquo;Tu banco ya sabe cómo eres financieramente. Tú no. Espejo de Datos te muestra la misma
+              lectura que ellos hacen — en lenguaje simple, sin guardar tus datos.&rdquo;
             </p>
             <p className="text-xs text-gray-500">↑ 175 caracteres · sin términos técnicos sin explicar</p>
           </div>
