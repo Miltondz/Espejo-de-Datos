@@ -10,8 +10,35 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 ## [Unreleased]
 
 - Video demo 3–5 min (deadline 7 mayo 17:00)
-- URL de deploy en Vercel
 - Plan 30/60/90 días (Adolfo)
+
+---
+
+## [1.3.0] — 2026-05-07
+
+### Added
+- **`components/espejo/MacroStrip.tsx`** — strip de indicadores macro en vivo (UF, TPM, TMC, USD) mostrado en `/analizador` antes del upload; fetch desde `/api/macro` al montar; atribución `mindicador.cl · Banco Central`
+- **`components/espejo/ChatEspejoTeaser.tsx`** — preview "coming soon v2.5" de Chat con tu Espejo: burbujas de chat (usuario + 🪞 espejo) con `blur-sm` + overlay; enlace a `/proximas-funciones`
+- **`components/espejo/OpenFinanceTeaser.tsx`** — preview "coming soon v3.0" de Open Finance: grid de 6 bancos chilenos con chip de color, botón "Conectar" falso; referencia a Ley 21.658; enlace a `/proximas-funciones`
+- **`app/proximas-funciones/page.tsx`** — nueva página con hero oscuro, timeline de versiones (v1.0 lanzado → v2.0 en diseño → v2.5 conceptual → v3.0 visión) con dot + línea vertical entre versiones, 4 principios y CTA institucional
+- **`types/espejo.ts`** — interfaz `EspejoResponseMeta { cacheHit: boolean; cacheReadTokens: number; usedThinking: boolean }` + campo `_meta?: EspejoResponseMeta` en `EspejoResponse`
+- **Extended Thinking en MirrorBuilderAgent** — beta header `interleaved-thinking-2025-05-14`; `budget_tokens: 5000`; `max_tokens` sube a 16 000 cuando activo; acumula `totalCacheReadTokens` y publica `_meta` en `EspejoResponse`
+- **`enableThinking` en CartolaUpload** — toggle 🧠 con borde morado cuando activo; se pasa en JSON body (demo) y FormData (upload); controla Extended Thinking end-to-end
+- **NavLinks `soon` flag** — campo `soon: boolean` en todos los links; rutas `/historial`, `/comunidad`, `/proximas-funciones` marcadas `soon: true`; badge ámbar "Pronto" de 9 px visible en rutas no activas
+
+### Changed
+- **`lib/agents/actionPlannerAgent.ts`** — condición de activación cambia de `&& body.financialProfile` a `&& (body.signals?.length ?? 0) > 0`; `financialProfile` ahora es opcional en `ActionPlannerInput`; system prompt con rama "sin perfil": razona directo desde `signals[]` sin llamar `simulate_change`
+- **`app/analizador/page.tsx`** — añade `MacroStrip` bajo el header; badges `_meta` (⚡ ámbar para cache hit, 🧠 morado para thinking) cuando `data._meta` presente; sección "Próximas funciones" siempre visible al pie (cuando `!loading`): `ChatEspejoTeaser` + `OpenFinanceTeaser`
+- **`app/educacion/page.tsx`** — botones de navegación rápida (Glosario / Leyes / Recursos) con anchor links y `scroll-mt-20`; glosario rediseñado con `accent` color por término, `icon`, `tag` pill, ejemplo en bloque blanco/70; cada sección con `id` para anchor
+- **`app/nosotros/page.tsx`** — rediseño completo: hero gradient oscuro con stats strip (4 disciplinas · 48h · 3 agentes IA · 8M+); 4 cards de valores; TeamCard con franja de color de 24 px, foto circular `rounded-full ring-4 ring-white` superpuesta con `absolute -bottom-10`, `pt-12` en body; grid 2→4 columnas
+- **`app/historial/page.tsx`** — rediseño como pantalla "coming soon v2.0": gráfica de barras CSS `blur-sm` (4 meses, barras de colores) + comparativa de señales antes/después; overlay "Disponible en v2.0"; callout de privacidad; 4 cards de funciones pendientes
+- **`app/comunidad/page.tsx`** — rediseño con mockup de vista de facilitador `blur-sm` (barras de participantes, métricas del grupo) + overlay "Modo Taller v2.0"; 2 feature cards: Modo Taller B2G + Comparativa anónima; sección "¿Por qué B2G?"
+- **`app/layout.tsx`** — `scroll-smooth` en `<html>`; link "Roadmap" → `/proximas-funciones` en footer; link "Transparencia técnica" → `/debug` en footer
+- **`components/NavLinks.tsx`** — 3 rutas nuevas (historial, comunidad, proximas-funciones) con `soon: true`; estilo gris `text-gray-400` para rutas pronto; badge "Pronto" ámbar oculto en ruta activa
+
+### Chore
+- `.gitignore` — agrega `social/`
+- **`social/`** (gitignored) — plantillas de publicaciones para LinkedIn (3 variantes: técnico, ciudadano, corto) e Instagram (3 posts + Stories con sugerencias de imagen y hashtags)
 
 ---
 
@@ -241,7 +268,10 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-[Unreleased]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.9.0...v1.0.0
 [0.9.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.8.5...v0.9.0
 [0.8.5]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.8.0...v0.8.5

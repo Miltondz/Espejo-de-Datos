@@ -91,28 +91,46 @@ python financial_mirror_mcp.py
 ```
 app/
   page.tsx                     # Landing
-  analizador/page.tsx          # Core — upload + espejo completo
+  analizador/page.tsx          # Core — upload + espejo completo + teasers
   dashboard/page.tsx           # Dashboard macro (6 indicadores)
-  educacion/page.tsx           # Leyes + recursos CMF, SERNAC, BCN
+  educacion/page.tsx           # Glosario + leyes + recursos CMF, SERNAC, BCN
+  nosotros/page.tsx            # Equipo Dunatech
+  historial/page.tsx           # Preview v2.0 — historial de análisis
+  comunidad/page.tsx           # Preview v2.0 — talleres B2G
+  proximas-funciones/page.tsx  # Roadmap v1.0 → v3.0
   api/
     macro/route.ts             # GET  /api/macro  — indicadores en tiempo real
     analyze/route.ts           # POST /api/analyze — espejo completo
     simulate/route.ts          # POST /api/simulate — simulación what-if
     generar-carta/route.ts     # POST /api/generar-carta — borrador carta
 
-components/espejo/             # 8 componentes UI
+components/espejo/             # 14 componentes UI
+  ProfileSummaryCard           # Resumen de perfil con barra ingresos/egresos
+  SignalsGrid                  # Señales ordenadas por importancia
+  InstitutionLensesTabs        # 3 lentes (banco / fintech / estado)
+  SimulationPanel              # Panel what-if con simulación
+  CartolaUpload                # Upload PDF + tabs demo/upload + toggle thinking
+  CartaModal                   # Generador de cartas ciudadanas
+  PasaporteButton              # Pasaporte financiero imprimible
+  PrivacyBadge                 # Badge privacidad by design
+  AnalysisProgress             # Overlay de progreso durante análisis
+  ComplianceBadges             # 14 badges de cumplimiento normativo
+  MacroStrip                   # Indicadores macro en vivo (UF, TPM, TMC, USD)
+  ChatEspejoTeaser             # Preview "coming soon" chat con el espejo
+  OpenFinanceTeaser            # Preview "coming soon" conexión bancaria directa
+
 lib/
   data-adapter.ts              # DAL: única interfaz hacia fuentes de datos
   espejo-builder.ts            # FinancialProfile → EspejoResponse (fallback)
   agents/
-    mirrorBuilderAgent.ts      # Agente principal — 5 tool calls en cadena
-    actionPlannerAgent.ts      # Agente simulación what-if
+    mirrorBuilderAgent.ts      # Agente principal — Extended Thinking + Prompt Caching
+    actionPlannerAgent.ts      # Agente simulación what-if (usa signals[])
     letterGeneratorAgent.ts    # Agente generador de cartas (Haiku)
     toolImplementations.ts     # 6 tools + schemas Anthropic + ejecutor
 
 types/
   profile.ts                   # FinancialProfile — contrato de dominio
-  espejo.ts                    # EspejoResponse — contrato frontend
+  espejo.ts                    # EspejoResponse + EspejoResponseMeta (_meta)
 
 data/                          # Fixtures demo: Paula (emprendedora) y Luis (jubilado)
 mcp-server/
@@ -164,6 +182,7 @@ Si el agente falla o no hay API key → `buildEspejoFromProfile()` (determinista
 | **v1.0** | 6 mayo | Rediseño UI completo — landing, analizador, dashboard, educación, historial, comunidad |
 | **v1.1** | 6 mayo | Landing: sección "Privacidad por diseño" con 14 badges temáticos · context hints en upload · CSS de impresión |
 | **v1.2** | 7 mayo | Página `/nosotros` equipo Dunatech · sección rubric en landing · ficha-proyecto.md · fix error mensajes API |
+| **v1.3** | 7 mayo | Extended Thinking en MirrorBuilderAgent + badge _meta en UI · MacroStrip live · ChatEspejoTeaser + OpenFinanceTeaser · /proximas-funciones con roadmap · redesigns /nosotros /historial /comunidad /educacion · NavLinks "Pronto" |
 
 Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle técnico completo.
 
