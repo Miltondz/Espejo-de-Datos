@@ -384,6 +384,85 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── A QUIÉN AYUDA Y CÓMO LLEGA ──────────────────────────────── */}
+      <section className="py-16 px-4 bg-slate-50">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold text-gray-900">¿A quién ayuda y cómo llega?</h2>
+            <p className="text-gray-500 text-sm">El ciudadano, el problema y el canal de adopción</p>
+          </div>
+
+          {/* Problema ≤300 chars sin jerga */}
+          <div className="bg-gray-900 rounded-2xl px-8 py-6 text-white text-center space-y-2">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">El problema</p>
+            <p className="text-lg md:text-xl font-semibold leading-relaxed max-w-2xl mx-auto">
+              "Tu banco ya sabe cómo eres financieramente. Tú no. Espejo de Datos te muestra la misma
+              lectura que ellos hacen — en lenguaje simple, sin guardar tus datos."
+            </p>
+            <p className="text-xs text-gray-500">↑ 175 caracteres · sin términos técnicos sin explicar</p>
+          </div>
+
+          {/* Segmento · Canal · Impacto */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            {/* Segmento */}
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl" aria-hidden="true">👥</span>
+                <h3 className="text-sm font-bold text-blue-900">El ciudadano</h3>
+              </div>
+              <p className="text-sm text-blue-800 leading-relaxed">
+                Trabajadores, emprendedores y pensionados chilenos de{' '}
+                <strong>25 a 65 años</strong>, segmentos <strong>C2 y D</strong>
+                {' '}(ingresos entre $500 K y $1,2 M mensuales), con cuenta bancaria
+                activa pero sin acceso a educación financiera formal.
+              </p>
+              <p className="text-xs text-blue-700 font-medium">
+                📍 Región Metropolitana · Valparaíso · Biobío
+              </p>
+            </div>
+
+            {/* Canal */}
+            <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl" aria-hidden="true">📲</span>
+                <h3 className="text-sm font-bold text-emerald-900">Canal de adopción</h3>
+              </div>
+              <p className="text-sm text-emerald-800 leading-relaxed">
+                Compartible por <strong>WhatsApp</strong> con un enlace directo.
+                Sin app que instalar, sin cuenta que crear. Funciona en cualquier
+                navegador de celular — diseñado para pantallas de 360 px (gama baja).
+              </p>
+              <p className="text-xs text-emerald-700 font-medium">
+                WhatsApp · {'>'}90% penetración en Chile · cero fricciones de onboarding
+              </p>
+            </div>
+
+            {/* Impacto */}
+            <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xl" aria-hidden="true">📊</span>
+                <h3 className="text-sm font-bold text-amber-900">El impacto</h3>
+              </div>
+              <p className="text-sm text-amber-800 leading-relaxed">
+                Más de <strong>8 millones de personas</strong> tienen deuda vigente
+                en el sistema financiero regulado. La mayoría desconoce cómo se calcula
+                su tasa efectiva o qué señales determinan su acceso al crédito.
+              </p>
+              <a
+                href="https://www.cmf.cl/estadisticas/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-amber-700 font-semibold underline underline-offset-2 hover:text-amber-900"
+              >
+                Fuente: CMF Chile — Estadísticas →
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ── PRIVACIDAD POR DISEÑO ────────────────────────────────────── */}
       <section className="py-16 px-4 bg-white">
         <div className="max-w-4xl mx-auto space-y-8">
