@@ -46,6 +46,7 @@
 | Datos | [16-fixtures/demo-espejo-luis.json](16-fixtures/demo-espejo-luis.json) | Claude / repo | Fixture backup Luis |
 | Raíz | [CLAUDE.md](CLAUDE.md) | Claude Code | Reglas duras del repo (a copiar a la raíz del proyecto) |
 | Skills | [skills-para-proyecto/](skills-para-proyecto/) | Milton (setup) | 6 skills formales de Claude Code — copiar a `.claude/skills/` al crear el repo |
+| Técnico | [17-como-funciona-en-produccion.md](17-como-funciona-en-produccion.md) | Equipo | Arquitectura en Vercel: MCP vs TypeScript, flujo completo, cómo explicarlo |
 
 ---
 
