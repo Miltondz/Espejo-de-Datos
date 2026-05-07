@@ -69,6 +69,7 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
   const [fileName, setFileName]     = useState<string | null>(null)
   const [dragging, setDragging]     = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [enableThinking, setEnableThinking] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   function toggleHint(id: HintId) {
@@ -84,7 +85,7 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: 'demo', demoId }),
+        body: JSON.stringify({ mode: 'demo', demoId, enableThinking }),
       })
       if (!res.ok) throw new Error('Error al cargar')
       const data: EspejoResponse = await res.json()
@@ -120,6 +121,7 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
       form.append('file', file)
       form.append('segmento', deriveSegmento(hints))
       if (hints.length > 0) form.append('contextHints', hints.join(','))
+      form.append('enableThinking', String(enableThinking))
       const res = await fetch('/api/analyze', { method: 'POST', body: form })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -256,6 +258,23 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
               Selecciona un perfil para ver los detalles antes de cargar el análisis
             </p>
           )}
+
+          {/* Extended thinking toggle */}
+          <label className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
+            enableThinking ? 'border-purple-300 bg-purple-50' : 'border-gray-200 hover:border-purple-200 hover:bg-slate-50'
+          }`}>
+            <input
+              type="checkbox"
+              checked={enableThinking}
+              onChange={e => setEnableThinking(e.target.checked)}
+              className="accent-purple-600 shrink-0"
+            />
+            <span className="text-base shrink-0" aria-hidden="true">🧠</span>
+            <div>
+              <span className="text-sm font-medium text-gray-800">Razonamiento extendido</span>
+              <span className="ml-2 text-xs text-gray-400">Más profundo · ~2× más lento</span>
+            </div>
+          </label>
         </div>
       )}
 
@@ -365,6 +384,23 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
               descargable (no una imagen escaneada).
             </p>
           </div>
+
+          {/* Extended thinking toggle */}
+          <label className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
+            enableThinking ? 'border-purple-300 bg-purple-50' : 'border-gray-200 hover:border-purple-200 hover:bg-slate-50'
+          }`}>
+            <input
+              type="checkbox"
+              checked={enableThinking}
+              onChange={e => setEnableThinking(e.target.checked)}
+              className="accent-purple-600 shrink-0"
+            />
+            <span className="text-base shrink-0" aria-hidden="true">🧠</span>
+            <div>
+              <span className="text-sm font-medium text-gray-800">Razonamiento extendido</span>
+              <span className="ml-2 text-xs text-gray-400">Más profundo · ~2× más lento</span>
+            </div>
+          </label>
         </div>
       )}
     </div>

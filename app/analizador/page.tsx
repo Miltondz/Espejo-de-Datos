@@ -59,6 +59,21 @@ export default function AnalizadorPage() {
       {/* Results */}
       {data && !loading && (
         <div className="space-y-6">
+          {/* AI feature badges — cache hit + thinking */}
+          {data._meta && (
+            <div className="flex flex-wrap gap-2">
+              {data._meta.cacheHit && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full">
+                  ⚡ Caché activo — {data._meta.cacheReadTokens.toLocaleString('es-CL')} tokens reutilizados
+                </span>
+              )}
+              {data._meta.usedThinking && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-full">
+                  🧠 Razonamiento extendido activo
+                </span>
+              )}
+            </div>
+          )}
           <ProfileSummaryCard summary={data.profileSummary} />
           <SignalsGrid signals={data.signals} segmento={data.profileSummary.segmento} />
           <InstitutionLensesTabs lenses={data.lenses} signals={data.signals} />

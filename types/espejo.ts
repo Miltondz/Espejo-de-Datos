@@ -59,9 +59,16 @@ export interface EspejoSimulationSuggestion {
   explicacion: string
 }
 
+export interface EspejoResponseMeta {
+  cacheHit: boolean
+  cacheReadTokens: number
+  usedThinking: boolean
+}
+
 export interface EspejoResponse {
   profileSummary: EspejoProfileSummary
   signals: EspejoSignal[]
   lenses: EspejoLens[]
   simulationSuggestion?: EspejoSimulationSuggestion
+  _meta?: EspejoResponseMeta
 }

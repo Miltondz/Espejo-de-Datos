@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
 // ─── Modo demo (JSON) ──────────────────────────────────────────────────────
 
 async function handleDemo(req: NextRequest) {
-  let body: { mode: string; demoId: string; segmento?: Segmento }
+  let body: { mode: string; demoId: string; segmento?: Segmento; enableThinking?: boolean }
 
   try {
     body = await req.json()
@@ -43,6 +43,7 @@ async function handleDemo(req: NextRequest) {
         demoNombre: nombreDemo,
         cartola: { filePath: `demo://${body.demoId}` },
         fechaReferencia: hoy,
+        enableThinking: body.enableThinking === true,
       })
       espejo.profileSummary.nombreDemo = nombreDemo
       if (!espejo.simulationSuggestion) {
@@ -77,6 +78,7 @@ async function handleUpload(req: NextRequest) {
   const segmento = (formData.get('segmento') as Segmento | null) ?? 'emprendedora'
   const rawHints = formData.get('contextHints') as string | null
   const contextHints = rawHints ? rawHints.split(',').filter(Boolean) : undefined
+  const enableThinking = formData.get('enableThinking') === 'true'
 
   if (!file) {
     return NextResponse.json({ error: 'Se requiere un archivo PDF' }, { status: 400 })
@@ -110,6 +112,7 @@ async function handleUpload(req: NextRequest) {
       fechaReferencia: hoy,
       fileId,
       contextHints,
+      enableThinking,
     })
 
     if (!espejo.simulationSuggestion) {

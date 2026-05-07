@@ -11,8 +11,9 @@ export interface MirrorBuilderInput {
     periodoEsperadoMeses?: number
   }
   fechaReferencia: string
-  fileId?: string  // Anthropic Files API file_id para cartolas reales subidas como PDF
-  contextHints?: string[]  // pistas opcionales del usuario: 'independiente' | 'jubilado' | 'dependiente' | 'multiple_bancos'
+  fileId?: string
+  contextHints?: string[]
+  enableThinking?: boolean
 }
 
 export const MIRROR_BUILDER_SYSTEM_PROMPT = `
@@ -89,13 +90,13 @@ Estructura exacta:
 const client = new Anthropic()
 
 export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise<EspejoResponse> {
-  const { fileId, ...inputWithoutFileId } = input
+  const { fileId, enableThinking, ...inputWithoutMeta } = input
+  const useThinking = enableThinking === true
 
-  // Cuando hay PDF real, incluirlo como documento en el mensaje inicial
   const firstMessageContent: Anthropic.MessageParam['content'] = fileId
     ? [
         { type: 'document', source: { type: 'file', file_id: fileId } } as unknown as Anthropic.TextBlockParam,
-        { type: 'text', text: JSON.stringify(inputWithoutFileId) },
+        { type: 'text', text: JSON.stringify(inputWithoutMeta) },
       ]
     : JSON.stringify(input)
 
@@ -103,27 +104,37 @@ export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise
     { role: 'user', content: firstMessageContent },
   ]
 
-  // Beta header requerido cuando se referencian archivos en mensajes
-  const requestOpts = fileId
-    ? { headers: { 'anthropic-beta': 'files-api-2025-04-14' } }
+  // Merge beta headers: Files API + Extended Thinking
+  const betaHeaders: string[] = []
+  if (fileId)       betaHeaders.push('files-api-2025-04-14')
+  if (useThinking)  betaHeaders.push('interleaved-thinking-2025-05-14')
+  const requestOpts = betaHeaders.length > 0
+    ? { headers: { 'anthropic-beta': betaHeaders.join(',') } }
     : undefined
 
-  // Loop agentico: máximo 10 rondas para evitar loops infinitos
+  const thinkingParam = useThinking
+    ? { thinking: { type: 'enabled' as const, budget_tokens: 5000 } }
+    : {}
+
+  let totalCacheReadTokens = 0
+
   for (let round = 0; round < 10; round++) {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4096,
+      max_tokens: useThinking ? 16000 : 4096,
       system: [{ type: 'text', text: MIRROR_BUILDER_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       tools: MIRROR_TOOLS,
       messages,
+      ...thinkingParam,
     }, requestOpts)
+
+    totalCacheReadTokens += response.usage?.cache_read_input_tokens ?? 0
 
     if (response.stop_reason === 'end_turn') {
       const textBlock = response.content.find(b => b.type === 'text')
       if (!textBlock || textBlock.type !== 'text') {
         throw new Error('MirrorBuilderAgent: no text block en respuesta final')
       }
-      // Extract JSON even if Claude wraps it in prose
       const raw = textBlock.text
       const jsonStart = raw.indexOf('{')
       const jsonEnd   = raw.lastIndexOf('}')
@@ -133,6 +144,11 @@ export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise
       const parsed = JSON.parse(raw.slice(jsonStart, jsonEnd + 1)) as EspejoResponse
       if (!parsed.profileSummary || !Array.isArray(parsed.signals) || !Array.isArray(parsed.lenses)) {
         throw new Error('MirrorBuilderAgent: campos requeridos ausentes en respuesta')
+      }
+      parsed._meta = {
+        cacheHit: totalCacheReadTokens > 0,
+        cacheReadTokens: totalCacheReadTokens,
+        usedThinking: useThinking,
       }
       return parsed
     }

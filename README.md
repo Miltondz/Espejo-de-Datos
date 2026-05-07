@@ -7,7 +7,7 @@
 Construido para el **Claude Impact Lab Chile 2026** · Línea 01 Inclusión Financiera · AI Builder.
 
 > **Video demo:** *(agregar link antes del 7 mayo 17:00)*
-> **App en vivo:** *(URL Vercel)*
+> **App en vivo:** [espejo-de-datos.vercel.app](https://espejo-de-datos.vercel.app/)
 
 ---
 
@@ -18,9 +18,9 @@ Construido para el **Claude Impact Lab Chile 2026** · Línea 01 Inclusión Fina
 | **Agent SDK** | MirrorBuilderAgent orquesta 5 tools MCP en loop agentico (hasta 10 rondas) |
 | **MCP** | `financial-mirror-mcp` expone 6 tools de dominio (parse, macro, profile, signals, lenses, simulate) |
 | **Files API** | Carga y descarta cartolas PDF de forma privada — eliminado en bloque `finally` |
-| **Extended Thinking** | `interleaved-thinking-2025-05-14` en LetterGeneratorAgent para razonamiento profundo |
+| **Extended Thinking** | `interleaved-thinking-2025-05-14` en MirrorBuilderAgent (análisis completo) y LetterGeneratorAgent (cartas SERNAC) |
 | **Citations** | Fundamenta cartas ciudadanas en extractos de ley chilena vigente (Ley 18.010, 19.496, 21.236, 21.719) |
-| **Prompt Caching** | `cache_control: ephemeral` en system prompt de los 3 agentes |
+| **Prompt Caching** | `cache_control: ephemeral` en system prompt de los 3 agentes — cache hit visible en el UI |
 
 ---
 
