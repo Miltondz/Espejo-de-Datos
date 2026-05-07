@@ -69,7 +69,7 @@ export async function callActionPlannerAgent(
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: ACTION_PLANNER_SYSTEM_PROMPT,
+      system: [{ type: 'text', text: ACTION_PLANNER_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       tools: SIMULATION_TOOLS,
       messages,
     })

@@ -75,7 +75,7 @@ export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 4096,
-      system: MIRROR_BUILDER_SYSTEM_PROMPT,
+      system: [{ type: 'text', text: MIRROR_BUILDER_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       tools: MIRROR_TOOLS,
       messages,
     })

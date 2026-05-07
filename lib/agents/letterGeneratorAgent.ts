@@ -92,7 +92,7 @@ export async function callLetterGeneratorAgent(
   if (useCitations && input.ley) {
     userContent.push({
       type: 'document',
-      source: { type: 'text', data: input.ley.extracto },
+      source: { type: 'text', media_type: 'text/plain', data: input.ley.extracto },
       title: input.ley.nombre,
       citations: { enabled: true },
     } as unknown as Anthropic.TextBlockParam)
@@ -117,12 +117,18 @@ export async function callLetterGeneratorAgent(
     messages: [{ role: 'user' as const, content: userContent }],
   }
 
-  const response = useThinking
-    ? await client.messages.create(
-        { ...baseParams, thinking: { type: 'enabled', budget_tokens: 2048 } },
-        { headers: { 'anthropic-beta': 'interleaved-thinking-2025-05-14' } },
-      )
-    : await client.messages.create(baseParams)
+  const betas: string[] = []
+  if (useThinking) betas.push('interleaved-thinking-2025-05-14')
+
+  const finalParams = useThinking
+    ? { ...baseParams, thinking: { type: 'enabled' as const, budget_tokens: 2048 } }
+    : baseParams
+
+  const requestOpts = betas.length > 0
+    ? { headers: { 'anthropic-beta': betas.join(',') } }
+    : undefined
+
+  const response = await client.messages.create(finalParams, requestOpts)
 
   const cartaTexto = extractText(response.content)
   if (!cartaTexto) throw new Error('LetterGeneratorAgent: no text block')
