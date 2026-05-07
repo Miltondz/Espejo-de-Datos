@@ -120,10 +120,14 @@ async function handleUpload(req: NextRequest) {
 
   } catch (err) {
     console.error('[/api/analyze] Upload falló:', err)
-    return NextResponse.json(
-      { error: 'No se pudo analizar la cartola. Verifica que el PDF tenga texto seleccionable.' },
-      { status: 500 },
-    )
+    const errMsg = String((err as { error?: { message?: string }; message?: string })?.error?.message ?? (err as { message?: string })?.message ?? '')
+    let userMsg = 'No se pudo analizar la cartola. Intenta nuevamente en unos minutos.'
+    if (errMsg.toLowerCase().includes('credit balance') || errMsg.toLowerCase().includes('billing')) {
+      userMsg = 'Sin saldo en la API de IA. El administrador debe recargar créditos en console.anthropic.com.'
+    } else if (errMsg.toLowerCase().includes('selectable') || errMsg.toLowerCase().includes('texto')) {
+      userMsg = 'No se pudo analizar la cartola. Verifica que el PDF tenga texto seleccionable.'
+    }
+    return NextResponse.json({ error: userMsg }, { status: 500 })
   } finally {
     // 3. Eliminar el archivo de Files API — privacidad: no persiste
     if (fileId) {
