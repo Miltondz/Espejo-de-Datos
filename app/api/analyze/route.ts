@@ -75,6 +75,8 @@ async function handleUpload(req: NextRequest) {
 
   const file = formData.get('file') as File | null
   const segmento = (formData.get('segmento') as Segmento | null) ?? 'emprendedora'
+  const rawHints = formData.get('contextHints') as string | null
+  const contextHints = rawHints ? rawHints.split(',').filter(Boolean) : undefined
 
   if (!file) {
     return NextResponse.json({ error: 'Se requiere un archivo PDF' }, { status: 400 })
@@ -107,6 +109,7 @@ async function handleUpload(req: NextRequest) {
       cartola: { filePath: `uploaded://${file.name}` },
       fechaReferencia: hoy,
       fileId,
+      contextHints,
     })
 
     if (!espejo.simulationSuggestion) {

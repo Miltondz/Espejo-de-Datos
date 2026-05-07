@@ -11,6 +11,20 @@ interface CartolaUploadProps {
 
 type Tab = 'demo' | 'upload'
 
+type HintId = 'independiente' | 'jubilado' | 'dependiente' | 'multiple_bancos'
+
+const CONTEXT_HINTS: { id: HintId; icon: string; label: string }[] = [
+  { id: 'independiente', icon: '🧑‍💼', label: 'Trabajo de forma independiente o tengo un emprendimiento' },
+  { id: 'jubilado',      icon: '👴',    label: 'Recibo pensión o soy jubilado/a' },
+  { id: 'dependiente',   icon: '🏢',    label: 'Soy empleado/a con sueldo fijo mensual' },
+  { id: 'multiple_bancos', icon: '🏦',  label: 'Uso más de un banco o tengo varias cuentas' },
+]
+
+function deriveSegmento(hints: HintId[]): Segmento {
+  if (hints.includes('jubilado')) return 'jubilado'
+  return 'emprendedora'
+}
+
 const DEMO_PROFILES = {
   paula: {
     emoji: '👩‍💼',
@@ -51,11 +65,17 @@ const FILE_ERRORS: Record<string, string> = {
 export default function CartolaUpload({ onAnalyzed, onError, setLoading }: CartolaUploadProps) {
   const [tab, setTab]               = useState<Tab>('demo')
   const [selected, setSelected]     = useState<'paula' | 'luis' | null>(null)
-  const [segmento, setSegmento]     = useState<Segmento>('emprendedora')
+  const [hints, setHints]           = useState<HintId[]>([])
   const [fileName, setFileName]     = useState<string | null>(null)
   const [dragging, setDragging]     = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  function toggleHint(id: HintId) {
+    setHints(prev =>
+      prev.includes(id) ? prev.filter(h => h !== id) : [...prev, id]
+    )
+  }
 
   async function loadDemo(demoId: 'paula' | 'luis') {
     setUploadError(null)
@@ -98,7 +118,8 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
     try {
       const form = new FormData()
       form.append('file', file)
-      form.append('segmento', segmento)
+      form.append('segmento', deriveSegmento(hints))
+      if (hints.length > 0) form.append('contextHints', hints.join(','))
       const res = await fetch('/api/analyze', { method: 'POST', body: form })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
@@ -250,33 +271,38 @@ export default function CartolaUpload({ onAnalyzed, onError, setLoading }: Carto
             </p>
           </div>
 
-          {/* Segmento */}
+          {/* Context hints — optional checklist */}
           <div className="space-y-2">
-            <p className="text-sm font-semibold text-gray-700">Tu perfil:</p>
-            <div className="flex gap-4 text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="segmento"
-                  value="emprendedora"
-                  checked={segmento === 'emprendedora'}
-                  onChange={() => setSegmento('emprendedora')}
-                  className="accent-blue-600"
-                />
-                <span className="text-gray-700">Emprendedora / Trabajadora</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="segmento"
-                  value="jubilado"
-                  checked={segmento === 'jubilado'}
-                  onChange={() => setSegmento('jubilado')}
-                  className="accent-blue-600"
-                />
-                <span className="text-gray-700">Jubilado / Pensionado</span>
-              </label>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-semibold text-gray-700">Cuéntanos un poco (opcional)</p>
+              <span className="text-[10px] font-semibold bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">
+                El análisis se infiere de tu cartola
+              </span>
             </div>
+            <div className="space-y-1.5">
+              {CONTEXT_HINTS.map(h => (
+                <label
+                  key={h.id}
+                  className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 cursor-pointer transition-all ${
+                    hints.includes(h.id)
+                      ? 'border-blue-300 bg-blue-50'
+                      : 'border-gray-200 hover:border-blue-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={hints.includes(h.id)}
+                    onChange={() => toggleHint(h.id)}
+                    className="accent-blue-600 shrink-0"
+                  />
+                  <span className="text-base shrink-0" aria-hidden="true">{h.icon}</span>
+                  <span className="text-sm text-gray-700">{h.label}</span>
+                </label>
+              ))}
+            </div>
+            <p className="text-[11px] text-gray-400 pt-0.5">
+              Si no marcas nada, el Espejo infiere tu perfil directamente desde la cartola.
+            </p>
           </div>
 
           {/* Dropzone */}

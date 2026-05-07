@@ -12,6 +12,7 @@ export interface MirrorBuilderInput {
   }
   fechaReferencia: string
   fileId?: string  // Anthropic Files API file_id para cartolas reales subidas como PDF
+  contextHints?: string[]  // pistas opcionales del usuario: 'independiente' | 'jubilado' | 'dependiente' | 'multiple_bancos'
 }
 
 export const MIRROR_BUILDER_SYSTEM_PROMPT = `
@@ -46,6 +47,14 @@ Si el usuario adjunta un documento PDF de cartola:
     * El valor absoluto del monto va en el campo monto con el signo correcto
   - periodoMeses: cuenta los meses distintos en las fechas
   - institucionesDetectadas: nombre(s) del banco detectado en el encabezado
+
+# Contexto del usuario (contextHints)
+Si el input incluye 'contextHints', úsalos para enriquecer el análisis:
+- "independiente" → enfatiza variabilidad de ingresos y acceso a crédito sin boletas de sueldo.
+- "jubilado" → prioriza estabilidad de pensión y gastos en salud.
+- "dependiente" → contrasta ingreso fijo con gastos variables.
+- "multiple_bancos" → menciona fragmentación financiera como factor de perfil.
+Los hints son pistas del usuario, pero la cartola manda. Si hay contradicción, confía en la cartola.
 
 # Restricciones
 - Nunca inventes tasas, leyes ni indicadores: usa SIEMPRE las tools.

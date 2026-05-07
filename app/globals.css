@@ -15,7 +15,45 @@
 
   .shadow,
   .shadow-sm,
-  .shadow-xl {
+  .shadow-xl,
+  .shadow-md,
+  .shadow-2xl {
     box-shadow: none !important;
+  }
+
+  /*
+   * Prevent cards from splitting across page breaks.
+   * overflow-hidden is needed for screen (rounded gradient headers) but
+   * causes content to be clipped at the page boundary in print — disable it.
+   */
+  .rounded-2xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    overflow: visible !important;
+  }
+
+  /*
+   * Sections with many items (signals grid) may be taller than one page.
+   * Allow those inner items to break naturally but protect each signal card.
+   */
+  .rounded-xl {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Re-contain progress bars (purely decorative, content not at risk) */
+  .rounded-full {
+    overflow: hidden !important;
+  }
+
+  /* Give each top-level section breathing room after a page break */
+  .space-y-6 > * {
+    margin-bottom: 1rem;
+  }
+
+  /* Ensure gradients print as background (Chrome requires this) */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
