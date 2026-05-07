@@ -9,6 +9,8 @@ import InstitutionLensesTabs from '@/components/espejo/InstitutionLensesTabs'
 import SimulationPanel from '@/components/espejo/SimulationPanel'
 import PasaporteButton from '@/components/espejo/PasaporteButton'
 import PrivacyBadge from '@/components/espejo/PrivacyBadge'
+import AnalysisProgress from '@/components/espejo/AnalysisProgress'
+import ComplianceBadges from '@/components/espejo/ComplianceBadges'
 
 export default function AnalizadorPage() {
   const [data, setData] = useState<EspejoResponse | null>(null)
@@ -17,6 +19,9 @@ export default function AnalizadorPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
+      {/* Analysis progress overlay */}
+      <AnalysisProgress visible={loading} />
+
       {/* Page header */}
       <div className="flex flex-wrap justify-between items-center gap-3">
         <div>
@@ -30,20 +35,6 @@ export default function AnalizadorPage() {
 
       {/* Upload / Demo selector */}
       <CartolaUpload onAnalyzed={setData} onError={setError} setLoading={setLoading} />
-
-      {/* Loading state */}
-      {loading && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center space-y-3">
-          <div className="flex justify-center">
-            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          </div>
-          <p className="text-gray-600 font-medium">Analizando tu cartola…</p>
-          <p className="text-xs text-gray-400">
-            Procesando transacciones, consultando indicadores macro y construyendo tu espejo.
-            Esto tarda entre 10 y 30 segundos.
-          </p>
-        </div>
-      )}
 
       {/* Error state */}
       {error && !loading && (
@@ -73,7 +64,13 @@ export default function AnalizadorPage() {
             initialSuggestion={data.simulationSuggestion}
           />
           <PasaporteButton />
+          <ComplianceBadges />
         </div>
+      )}
+
+      {/* Compliance badges shown before any analysis too */}
+      {!data && !loading && (
+        <ComplianceBadges />
       )}
     </div>
   )
