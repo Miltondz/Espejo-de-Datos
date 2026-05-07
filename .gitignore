@@ -29,3 +29,8 @@ next-env.d.ts
 # mcp venv
 mcp-server/.venv/
 mcp-server/__pycache__/
+
+# archivos de prueba / ejemplos locales
+data-sintetica/
+Docs-Final/series.csv
+Docs-Final/Banco central*
