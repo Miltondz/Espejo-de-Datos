@@ -1,22 +1,28 @@
 'use client'
 
 import { useState } from 'react'
-import type { EspejoSignal } from '@/types/espejo'
+import type { EspejoSignal, Segmento } from '@/types/espejo'
 
 interface CartaModalProps {
   signal: EspejoSignal
+  segmento: Segmento
   onClose: () => void
 }
 
-export default function CartaModal({ signal, onClose }: CartaModalProps) {
+export default function CartaModal({ signal, segmento, onClose }: CartaModalProps) {
   const [nombre, setNombre] = useState('')
   const [institucion, setInstitucion] = useState('')
   const [carta, setCarta] = useState('')
+  const [modoUsado, setModoUsado] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [enableThinking, setEnableThinking] = useState(false)
+  const [enableCitations, setEnableCitations] = useState(false)
 
   async function handleGenerar() {
     setLoading(true)
+    setCarta('')
+    setModoUsado(null)
     try {
       const res = await fetch('/api/generar-carta', {
         method: 'POST',
@@ -25,11 +31,15 @@ export default function CartaModal({ signal, onClose }: CartaModalProps) {
           tipoProblema: signal.id,
           nombreInstitucion: institucion,
           tipoProducto: 'crédito',
-          segmento: 'emprendedora',
+          segmento,
+          nombreUsuario: nombre || undefined,
+          enableThinking,
+          enableCitations,
         }),
       })
       const data = await res.json()
       setCarta(data.cartaTexto ?? '')
+      setModoUsado(data.modoUsado ?? null)
     } catch {
       setCarta('Error al generar. Intenta nuevamente.')
     } finally {
@@ -57,10 +67,11 @@ export default function CartaModal({ signal, onClose }: CartaModalProps) {
           </button>
         </div>
         <p className="text-sm text-gray-500">{signal.titulo}</p>
+
         <div className="space-y-2">
           <input
             type="text"
-            placeholder="Tu nombre"
+            placeholder="Tu nombre (opcional)"
             value={nombre}
             onChange={e => setNombre(e.target.value)}
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -73,6 +84,34 @@ export default function CartaModal({ signal, onClose }: CartaModalProps) {
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
+
+        <div className="flex flex-wrap gap-4 text-sm">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enableThinking}
+              onChange={e => setEnableThinking(e.target.checked)}
+              className="accent-blue-600"
+            />
+            <span>
+              Razonamiento extendido
+              <span className="ml-1 text-xs text-gray-400">(más preciso)</span>
+            </span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enableCitations}
+              onChange={e => setEnableCitations(e.target.checked)}
+              className="accent-blue-600"
+            />
+            <span>
+              Citar ley exacta
+              <span className="ml-1 text-xs text-gray-400">(referencia legal)</span>
+            </span>
+          </label>
+        </div>
+
         <button
           onClick={handleGenerar}
           disabled={loading}
@@ -80,6 +119,13 @@ export default function CartaModal({ signal, onClose }: CartaModalProps) {
         >
           {loading ? 'Generando…' : 'Generar borrador'}
         </button>
+
+        {modoUsado && (
+          <p className="text-xs text-gray-400">
+            Generado con: <span className="font-mono text-gray-600">{modoUsado}</span>
+          </p>
+        )}
+
         {carta && (
           <>
             <textarea
@@ -93,6 +139,7 @@ export default function CartaModal({ signal, onClose }: CartaModalProps) {
             </button>
           </>
         )}
+
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
           <p className="text-xs text-yellow-800">
             Este borrador es una ayuda inicial. Revísalo con un abogado, con SERNAC o con un

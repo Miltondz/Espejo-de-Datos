@@ -43,7 +43,7 @@ export default function AnalizadorPage() {
       {data && (
         <>
           <ProfileSummaryCard summary={data.profileSummary} />
-          <SignalsGrid signals={data.signals} />
+          <SignalsGrid signals={data.signals} segmento={data.profileSummary.segmento} />
           <InstitutionLensesTabs lenses={data.lenses} signals={data.signals} />
           <SimulationPanel
             signals={data.signals}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { EspejoSignal } from '@/types/espejo'
+import type { EspejoSignal, Segmento } from '@/types/espejo'
 import CartaModal from './CartaModal'
 
 const COLORS: Record<string, string> = {
@@ -18,7 +18,7 @@ const ICONS: Record<string, string> = {
   sin_datos: '—',
 }
 
-export default function SignalsGrid({ signals }: { signals: EspejoSignal[] }) {
+export default function SignalsGrid({ signals, segmento }: { signals: EspejoSignal[]; segmento: Segmento }) {
   const [activeSignal, setActiveSignal] = useState<EspejoSignal | null>(null)
 
   return (
@@ -49,7 +49,7 @@ export default function SignalsGrid({ signals }: { signals: EspejoSignal[] }) {
         </div>
       </div>
       {activeSignal && (
-        <CartaModal signal={activeSignal} onClose={() => setActiveSignal(null)} />
+        <CartaModal signal={activeSignal} segmento={segmento} onClose={() => setActiveSignal(null)} />
       )}
     </>
   )
