@@ -59,6 +59,7 @@ export default function AnalizadorPage() {
           <SignalsGrid signals={data.signals} segmento={data.profileSummary.segmento} />
           <InstitutionLensesTabs lenses={data.lenses} signals={data.signals} />
           <SimulationPanel
+            key={data.signals.map(s => s.id).join('|')}
             signals={data.signals}
             segmento={data.profileSummary.segmento}
             initialSuggestion={data.simulationSuggestion}

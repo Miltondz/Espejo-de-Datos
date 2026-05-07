@@ -95,7 +95,7 @@ export default function SimulationPanel({
           ? activeOption.id === 'reducir_uso_cupo'
             ? { reducirUsoCupoPct: pct }
             : { formalizarVentasPct: pct }
-          : {}
+          : { reducirAvances: true }
 
       const res = await fetch('/api/simulate', {
         method: 'POST',

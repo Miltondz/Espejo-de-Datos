@@ -7,11 +7,12 @@ export interface ActionPlannerInput {
   task: 'plan_simulation'
   segmento: Segmento
   goal: string
-  financialProfile: FinancialProfile
+  financialProfile?: FinancialProfile
   signals: EspejoSignal[]
   hypothesis: {
     reducirUsoCupoPct?: number
     formalizarVentasPct?: number
+    reducirAvances?: boolean
     aumentarSaldoFinMes?: number
   }
 }
@@ -23,19 +24,35 @@ en el espejo financiero si la persona modifica un comportamiento concreto.
 
 # Herramientas disponibles
 - simulate_change(financial_profile, action): aplica una acción y devuelve
-  newProfile + changedSignals.
+  newProfile + changedSignals. Solo disponible si el input incluye financial_profile.
 
 # Pasos
+
+## Si el input incluye "financialProfile":
 1. Lee la hipótesis y elige UNA acción concreta:
    - Si "reducirUsoCupoPct" presente → tipo "reducir_uso_cupo", cantidadPct = valor.
    - Si "formalizarVentasPct" presente → tipo "formalizar_ingresos", cantidadPct = valor.
+   - Si "reducirAvances" presente → tipo "reducir_avances", cantidadPct = 100.
    - Si "aumentarSaldoFinMes" presente → tipo "aumentar_saldo_fin_mes", cantidadPct = 0.
 2. Llama simulate_change con el financial_profile y la acción elegida.
-3. Identifica qué señales cambian positivamente (changedSignals) — usa los IDs del campo changedSignals del resultado de simulate_change.
+3. Identifica qué señales cambian positivamente (changedSignals) — usa los IDs del campo changedSignals del resultado.
+4. Genera explicación en 2-4 frases cubriendo la mirada de Banco, Fintech y Estado.
+
+## Si el input NO incluye "financialProfile" (solo hay "signals"):
+1. NO llames simulate_change.
+2. Lee la hipótesis y determina la acción:
+   - "reducirUsoCupoPct" → tipo "reducir_uso_cupo", cantidadPct = valor.
+   - "formalizarVentasPct" → tipo "formalizar_ingresos", cantidadPct = valor.
+   - "reducirAvances" → tipo "reducir_avances", cantidadPct = 100.
+3. Determina qué señales mejorarían usando el array "signals" del input:
+   - Para "reducir_uso_cupo": busca en signals IDs que contengan "cupo" o "liquidez".
+   - Para "reducir_avances": busca en signals IDs que contengan "avance" o "liquidez".
+   - Para "formalizar_ingresos": busca en signals IDs que contengan "formalidad" o "brecha".
+   - Incluye solo IDs de señales que realmente existen en el array signals del input.
 4. Genera explicación en 2-4 frases cubriendo la mirada de Banco, Fintech y Estado.
 
 # Restricciones
-- No inventes campos del perfil.
+- No inventes campos del perfil ni IDs de señales que no estén en el input.
 - No emitas asesoría financiera.
 - Lenguaje ciudadano, tono respetuoso.
 - Solo una acción simulada (la de mayor impacto).
