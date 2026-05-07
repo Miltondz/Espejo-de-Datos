@@ -12,6 +12,8 @@ import PrivacyBadge from '@/components/espejo/PrivacyBadge'
 import AnalysisProgress from '@/components/espejo/AnalysisProgress'
 import ComplianceBadges from '@/components/espejo/ComplianceBadges'
 import MacroStrip from '@/components/espejo/MacroStrip'
+import ChatEspejoTeaser from '@/components/espejo/ChatEspejoTeaser'
+import OpenFinanceTeaser from '@/components/espejo/OpenFinanceTeaser'
 
 export default function AnalizadorPage() {
   const [data, setData] = useState<EspejoResponse | null>(null)
@@ -91,6 +93,17 @@ export default function AnalizadorPage() {
       {/* Compliance badges shown before any analysis too */}
       {!data && !loading && (
         <ComplianceBadges />
+      )}
+
+      {/* Coming soon features — always visible */}
+      {!loading && (
+        <div className="space-y-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+            Próximas funciones
+          </p>
+          <ChatEspejoTeaser />
+          <OpenFinanceTeaser />
+        </div>
       )}
     </div>
   )

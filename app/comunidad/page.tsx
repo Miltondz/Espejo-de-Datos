@@ -34,32 +34,6 @@ const FEATURES = [
       'Completamente anónimo — sin identificadores',
     ],
   },
-  {
-    version: 'v2.5',
-    versionColor: 'bg-purple-100 text-purple-700 border-purple-200',
-    icon: '💬',
-    title: 'Chat con tu Espejo',
-    target: 'Usuarios individuales',
-    desc: 'Un asistente conversacional sobre los resultados ya generados — pregúntale al Espejo "¿por qué esta señal está en rojo?" o "¿qué debería hacer primero?" sin necesidad de reanalizar.',
-    detalle: [
-      'Solo conversa sobre el análisis existente — sin reanalizar',
-      'Respuestas contextualizadas a tus señales específicas',
-      'Streaming en tiempo real con Claude',
-    ],
-  },
-  {
-    version: 'v3.0',
-    versionColor: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    icon: '🔗',
-    title: 'Open Finance (Ley 21.658)',
-    target: 'Todos los segmentos',
-    desc: 'Con la Ley Fintech vigente, el usuario autoriza lectura directa desde su banco vía API — sin subir PDFs. El Espejo pasa de cartola-documento a datos bancarios en tiempo real.',
-    detalle: [
-      'Autorización OAuth con el banco del usuario',
-      'Análisis automático sin subir ningún archivo',
-      'Actualización periódica del perfil sin fricción',
-    ],
-  },
 ]
 
 export default function ComunidadPage() {
