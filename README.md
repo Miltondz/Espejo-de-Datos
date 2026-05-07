@@ -7,7 +7,10 @@
 Construido para el **Claude Impact Lab Chile 2026** · Línea 01 Inclusión Financiera · AI Builder.
 
 > **Video demo:** *(agregar link antes del 7 mayo 17:00)*
-> **App en vivo:** [espejo-de-datos.vercel.app](https://espejo-de-datos.vercel.app/)
+
+## 🌐 App en vivo
+
+# [espejo-de-datos.vercel.app](https://espejo-de-datos.vercel.app/)
 
 ---
 
