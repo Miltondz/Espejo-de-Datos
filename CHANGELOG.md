@@ -9,8 +9,82 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
-- Pasaporte imprimible con `@media print`
-- Frontend polish (Alejandra) — diseño visual y UX
+- Video demo 3–5 min (deadline 7 mayo 17:00)
+- URL de deploy en Vercel
+- Plan 30/60/90 días (Adolfo)
+
+---
+
+## [1.0.0] — 2026-05-06
+
+### Added
+- `components/NavLinks.tsx` — componente cliente con `usePathname` para resaltar ruta activa en el header
+- `app/comunidad/page.tsx` — rediseño completo: preview de funciones futuras con cards semi-transparentes
+- `app/historial/page.tsx` — rediseño completo: explicación privacidad-primero + lista de funciones pendientes
+
+### Changed
+- **Landing (`app/page.tsx`)** — rediseño completo: hero gradient oscuro (`slate-900 → blue-700`), feature cards (3 pilares), how-it-works numerado con badges de indicadores macro, persona cards Paula/Luis, tech badges Anthropic, disclaimer banner, CTA final gradient
+- **Layout (`app/layout.tsx`)** — header sticky con logo `🪞 Espejo de Datos`, NavLinks activo, footer enriquecido con links externos (SERNAC, CMF Educa)
+- **Analizador (`app/analizador/page.tsx`)** — header con subtítulo, spinner animado durante carga con copy explicativo, error state con ícono
+- **ProfileSummaryCard** — header gradient azul, barra de progreso ingresos/egresos con color dinámico, badges `Con sobregiros` / `Avances de efectivo`, stats con color semántico
+- **SignalsGrid** — señales ordenadas por importancia (3→2→1) con separadores de sección, badge `ALTA` rojo, botón "Generar carta →" como pill en señales legales
+- **InstitutionLensesTabs** — colores por institución (banco=azul, fintech=morado, estado=esmeralda), headline en tarjeta coloreada, señales en fondo slate
+- **SimulationPanel** — header gradient índigo/azul, spinner en botón, badges pill para señales que mejoran
+- **CartaModal** — header sticky con X, backdrop blur, panel "Opciones IA" enmarcado, spinner en generación, botón copiar con estado visual
+- **CartolaUpload** — banner privacidad verde, botones demo con avatar emoji, divider entre demo y upload, dropzone con feedback visual
+- **PasaporteButton** — tarjeta con ícono 📄 y botón gradient
+- **PrivacyBadge** — color esmeralda, texto simplificado
+- **Dashboard** — cards con label uppercase, box explicativo TMC, links a fuentes
+- **Educación** — cards de leyes con color por ley, grid 2 columnas para recursos, CTA hacia Espejo
+- `README.md` — tabla de herramientas Anthropic usadas, placeholders video/deploy, roadmap Día 2 actualizado a ✅
+
+---
+
+## [0.9.0] — 2026-05-06
+
+### Added
+- `data/leyes-referencias.ts` — extractos de 4 leyes chilenas (Ley 18.010, 19.496, 21.236, 21.719) para Citations; función `getLeyParaProblema(tipoProblema)`
+- `types/debug.ts` — tipos `ToolCallTrace` y `AgentTraceResponse` extraídos del route para evitar hydration bug
+- `entregable/` — 4 archivos de texto con system prompts de los 3 agentes y schema de tools MCP para entrega al jurado
+
+### Changed
+- **Prompt Caching** — `cache_control: { type: 'ephemeral' }` en system prompt array de los 3 agentes (`mirrorBuilderAgent`, `actionPlannerAgent`, `letterGeneratorAgent`)
+- **LetterGeneratorAgent** — soporte para Extended Thinking (`interleaved-thinking-2025-05-14` beta header, `thinking: enabled`, `budget_tokens: 2048`, modelo sube a `claude-sonnet-4-6`); soporte para Citations (document block con `media_type: text/plain`, `citations: { enabled: true }` sin beta header extra); campo `modoUsado` en respuesta
+- **`/api/generar-carta/route.ts`** — acepta `enableThinking` y `enableCitations` en el body; llama a `getLeyParaProblema` cuando citations habilitado
+- **CartaModal** — checkboxes `enableThinking` / `enableCitations`, muestra `modoUsado` badge
+- **`/api/debug/trace/route.ts`** — `export const dynamic = 'force-dynamic'`; system prompt con `cache_control`; tipos importados desde `@/types/debug`
+- **`app/debug/page.tsx`** — importa tipos desde `@/types/debug` (fix hydration — no importar desde server route)
+
+### Fixed
+- Hydration bug en `/debug`: importar tipos de `@/app/api/debug/trace/route` en componente `'use client'` causaba fallo silencioso del botón. Resuelto moviendo tipos a `types/debug.ts`
+- ESLint unescaped entities en debug page (`"` → `&quot;`)
+- Webpack cache corruption después de cambios de tipos (`.next` limpiado)
+- `citations-2025-04-11` beta header eliminado (API lo rechazaba — citations no necesita beta header)
+- `media_type: 'text/plain'` añadido al document source (era requerido y faltaba)
+
+---
+
+## [0.8.5] — 2026-05-06
+
+### Added
+- `app/api/analyze/route.ts` — `handleUpload()`: recibe FormData, sube PDF a Files API, corre MirrorBuilderAgent con `fileId`, elimina archivo en bloque `finally` (privacidad garantizada)
+- `lib/agents/mirrorBuilderAgent.ts` — campo `fileId?` en `MirrorBuilderInput`; cuando presente adjunta PDF como document block con beta header `files-api-2025-04-14`; system prompt ampliado con reglas de parsing PDF: fechas DD/MM/YYYY→YYYY-MM-DD, números chilenos (65.000→65000), columnas Cargos/Abonos separadas vs Monto firmado
+- `lib/agents/toolImplementations.ts` — `parseCartola` acepta parámetros opcionales `transacciones[]`, `periodoMeses`, `institucionesDetectadas`; si se pasan, los usa directamente (modo PDF real); MIRROR_TOOLS schema actualizado con campos opcionales y descripciones detalladas
+- `CartolaUpload.tsx` — dropzone drag-and-drop real con `<input type="file">`, selector de segmento (radio), envía FormData a `/api/analyze`; validación cliente (solo PDF, máx 5 MB)
+- `data-sintetica/` — 2 cartolas PDF sintéticas para pruebas: `Riesgo_Falabella_4meses.pdf` (ciclo deuda con avances) y `Riesgo_BancoEstado_4meses.pdf` (déficit mensual con sobregiros)
+
+### Changed
+- `app/api/analyze/route.ts` — dividido en `handleDemo()` (JSON, modo original) y `handleUpload()` (FormData + Files API); `export const dynamic = 'force-dynamic'`
+- `SignalsGrid` — recibe y pasa prop `segmento` a `CartaModal`
+- `CartaModal` — recibe `segmento` como prop (ya no hardcodeado a `'emprendedora'`)
+- `AnalizadorPage` — pasa `data.profileSummary.segmento` a `SignalsGrid`
+
+### Fixed
+- `demoId` cast a `'paula' | 'luis'` en fallback de `handleDemo` (error TypeScript)
+
+### Tested
+- PDF Falabella: detecta 85% uso cupo, 4 avances efectivo, tasa estimada ~46% (≥ TMC 45%)
+- PDF BancoEstado: detecta 4 meses saldo negativo, sobregiros, pagos de juegos online
 
 ---
 
@@ -129,7 +203,13 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-[Unreleased]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.9.0...v1.0.0
+[0.9.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.8.5...v0.9.0
+[0.8.5]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.8.0...v0.8.5
+[0.8.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.5.0...v0.8.0
+[0.5.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Miltondz/Espejo-de-Datos/releases/tag/v0.1.0
