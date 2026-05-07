@@ -158,6 +158,8 @@ Si el agente falla o no hay API key → `buildEspejoFromProfile()` (determinista
 | **v0.6** | 6 mayo | Dashboard conectado a mindicador.cl en tiempo real (UF, IPC, TPM) |
 | **v0.7** | 6 mayo | TMC real desde `mindicador.cl/api/tmc` — umbral dinámico en señales |
 | **v0.8** | 6 mayo | `/api/macro` con integración BDE (USD/CLP + IMACEC) · fix parse agentes · `/educacion` con 4 leyes chilenas |
+| **v1.0** | 6 mayo | Rediseño UI completo — landing, analizador, dashboard, educación, historial, comunidad |
+| **v1.1** | 6 mayo | Landing: sección "Privacidad por diseño" con 14 badges temáticos · context hints en upload · CSS de impresión |
 
 Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle técnico completo.
 
@@ -174,7 +176,7 @@ Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle técnico completo.
 | 3 agentes Claude con loop agentico y fallback | ✅ |
 | APIs reales — mindicador.cl, TMC, Banco Central BDE | ✅ |
 | Loop agentico verificado con API key real | ✅ |
-| Frontend polish — layout, diseño Tailwind, UX (Alejandra) | 🔄 |
+| Frontend polish — layout, diseño Tailwind, UX (Alejandra) | ✅ |
 
 ### Día 2 — 7 mayo
 

@@ -15,6 +15,23 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.0] — 2026-05-06
+
+### Added
+- **Landing — sección "Tu privacidad, por diseño"** — agrupa los 14 compliance badges en 4 cards temáticas con descripción visible (sin hover): Privacidad absoluta (sin persistencia, sin cesión, anónimo, datos mínimos) · Marco legal chileno (Leyes 21.719, 19.628, 21.658, 20.575) · Diseño ético (Privacy by Design, IA explicable, CMF Educa) · Seguridad técnica (sin tracking, OWASP Top 10, TLS 1.3)
+- **Landing — trust strip en el hero** — 3 señales de privacidad debajo de los botones CTA: "Cartola descartada al terminar · Sin cuenta ni RUT · Ley 21.719 · Ley 21.658"
+- **Landing — grilla Anthropic tech** — 6 cards con función real de cada tecnología (Files API, Agent SDK, Extended Thinking, Prompt Caching, MCP Server, Citations)
+- **`CartolaUpload`** — reemplaza radio "segmento" por 4 checkboxes opcionales de contexto: `independiente`, `jubilado`, `dependiente`, `multiple_bancos`; el segmento se deriva de los hints y se pasan como `contextHints` al API
+- **`MirrorBuilderInput`** — campo `contextHints?: string[]`; system prompt ampliado con instrucciones para enriquecer el análisis según hints sin sobreescribir la cartola
+- **`/api/analyze` handleUpload** — lee `contextHints` del FormData y lo pasa al agente
+
+### Changed
+- **`app/globals.css`** — bloque `@media print` completo: `break-inside: avoid` en cards, `overflow: visible` en `.rounded-2xl` (fix clip en print), fuerza impresión de gradientes con `-webkit-print-color-adjust: exact`, margen entre secciones
+- **Disclaimer** — integrado al pie de la sección de privacidad como nota de texto; elimina el banner amarillo huérfano
+- `.gitignore` — agrega `data-sintetica/`, `Docs-Final/series.csv` y `Docs-Final/Banco central*` (archivos de prueba locales)
+
+---
+
 ## [1.0.0] — 2026-05-06
 
 ### Added
