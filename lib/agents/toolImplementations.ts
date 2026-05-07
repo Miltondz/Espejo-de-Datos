@@ -53,7 +53,21 @@ export async function fetchMacroIndicators(_fechaReferencia: string): Promise<Ma
 
 // ─── TOOL: parse_cartola ───────────────────────────────────────────────────
 
-export function parseCartola(filePath: string): ParseCartolaResult {
+export function parseCartola(
+  filePath: string,
+  transacciones?: Transaccion[],
+  periodoMeses?: number,
+  institucionesDetectadas?: string[],
+): ParseCartolaResult {
+  // Cartola real subida por el usuario — Claude extrajo las transacciones del PDF
+  if (transacciones && transacciones.length > 0) {
+    return {
+      transacciones,
+      periodoMeses: periodoMeses ?? 1,
+      institucionesDetectadas: institucionesDetectadas ?? ['Desconocido'],
+    }
+  }
+
   const nombre = filePath.toLowerCase()
 
   if (nombre.includes('paula') || nombre === 'demo://paula') {
@@ -320,10 +334,29 @@ export function simulateChange(
 export const MIRROR_TOOLS: Anthropic.Tool[] = [
   {
     name: 'parse_cartola',
-    description: 'Lee cartola desde archivo y devuelve transacciones normalizadas, período y entidades detectadas.',
+    description: 'Parsea cartola y devuelve transacciones normalizadas, período e instituciones. Para cartolas reales subidas como PDF, incluye las transacciones extraídas del documento en el campo "transacciones".',
     input_schema: {
       type: 'object' as const,
-      properties: { file_path: { type: 'string', description: 'Ruta del archivo o "demo://paula" / "demo://luis"' } },
+      properties: {
+        file_path: { type: 'string', description: 'Ruta del archivo: "demo://paula", "demo://luis", o "uploaded://nombre.pdf" para cartolas reales' },
+        transacciones: {
+          type: 'array',
+          description: 'Transacciones extraídas del PDF real. Fechas en YYYY-MM-DD, montos en CLP entero (sin puntos: 65000 no 65.000). Incluir cuando file_path empieza con "uploaded://".',
+          items: {
+            type: 'object',
+            properties: {
+              fecha:       { type: 'string', description: 'YYYY-MM-DD' },
+              monto:       { type: 'number', description: 'Positivo=abono, negativo=cargo' },
+              tipo:        { type: 'string', enum: ['abono', 'cargo'] },
+              descripcion: { type: 'string' },
+              saldo:       { type: 'number', description: 'Saldo después de la transacción (opcional)' },
+            },
+            required: ['fecha', 'monto', 'tipo', 'descripcion'],
+          },
+        },
+        periodoMeses:           { type: 'number', description: 'Meses cubiertos por la cartola' },
+        institucionesDetectadas:{ type: 'array', items: { type: 'string' }, description: 'Bancos o fintechs detectadas en el PDF' },
+      },
       required: ['file_path'],
     },
   },
@@ -402,7 +435,12 @@ export async function executeTool(name: string, input: Record<string, unknown>):
     case 'fetch_macro_indicators':
       return fetchMacroIndicators(input.fecha_referencia as string)
     case 'parse_cartola':
-      return parseCartola(input.file_path as string)
+      return parseCartola(
+        input.file_path as string,
+        input.transacciones as Transaccion[] | undefined,
+        input.periodoMeses as number | undefined,
+        input.institucionesDetectadas as string[] | undefined,
+      )
     case 'build_financial_profile':
       return buildFinancialProfile(
         input.transacciones as Transaccion[],

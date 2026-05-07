@@ -11,6 +11,7 @@ export interface MirrorBuilderInput {
     periodoEsperadoMeses?: number
   }
   fechaReferencia: string
+  fileId?: string  // Anthropic Files API file_id para cartolas reales subidas como PDF
 }
 
 export const MIRROR_BUILDER_SYSTEM_PROMPT = `
@@ -19,7 +20,7 @@ Eres MirrorBuilderAgent, un agente que construye un "espejo financiero ciudadano
 para personas en Chile a partir de su cartola bancaria e indicadores macro oficiales.
 
 # Herramientas disponibles
-- parse_cartola(file_path): devuelve transacciones normalizadas.
+- parse_cartola(file_path, transacciones?, periodoMeses?, institucionesDetectadas?): devuelve transacciones normalizadas.
 - fetch_macro_indicators(fecha_referencia): devuelve UF, IPC y TPM.
 - build_financial_profile(transacciones, periodoMeses, macro): devuelve FinancialProfile.
 - extract_signals(financial_profile): devuelve señales canónicas.
@@ -32,6 +33,19 @@ para personas en Chile a partir de su cartola bancaria e indicadores macro ofici
 4. Llama extract_signals con el financial_profile.
 5. Llama generate_lenses con financial_profile + signals.
 6. Con todos los resultados, ensambla y devuelve un JSON válido.
+
+# Cartola PDF real (cuando se adjunta un documento)
+Si el usuario adjunta un documento PDF de cartola:
+- Lee el documento COMPLETO y extrae TODAS las transacciones visibles.
+- Al llamar parse_cartola usa file_path="uploaded://cartola.pdf" e incluye:
+  - transacciones: array con cada fila. Reglas de conversión:
+    * Fechas DD/MM/YYYY → YYYY-MM-DD (03/01/2026 → 2026-01-03)
+    * Números chilenos: elimina puntos de miles (65.000 → 65000, -200.000 → -200000)
+    * Si hay columnas Cargos/Abonos separadas: Cargos → monto negativo tipo "cargo", Abonos → monto positivo tipo "abono"
+    * Si hay columna Monto firmada: positivo → tipo "abono", negativo → tipo "cargo"
+    * El valor absoluto del monto va en el campo monto con el signo correcto
+  - periodoMeses: cuenta los meses distintos en las fechas
+  - institucionesDetectadas: nombre(s) del banco detectado en el encabezado
 
 # Restricciones
 - Nunca inventes tasas, leyes ni indicadores: usa SIEMPRE las tools.
@@ -66,9 +80,24 @@ Estructura exacta:
 const client = new Anthropic()
 
 export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise<EspejoResponse> {
+  const { fileId, ...inputWithoutFileId } = input
+
+  // Cuando hay PDF real, incluirlo como documento en el mensaje inicial
+  const firstMessageContent: Anthropic.MessageParam['content'] = fileId
+    ? [
+        { type: 'document', source: { type: 'file', file_id: fileId } } as unknown as Anthropic.TextBlockParam,
+        { type: 'text', text: JSON.stringify(inputWithoutFileId) },
+      ]
+    : JSON.stringify(input)
+
   const messages: Anthropic.MessageParam[] = [
-    { role: 'user', content: JSON.stringify(input) },
+    { role: 'user', content: firstMessageContent },
   ]
+
+  // Beta header requerido cuando se referencian archivos en mensajes
+  const requestOpts = fileId
+    ? { headers: { 'anthropic-beta': 'files-api-2025-04-14' } }
+    : undefined
 
   // Loop agentico: máximo 10 rondas para evitar loops infinitos
   for (let round = 0; round < 10; round++) {
@@ -78,7 +107,7 @@ export async function callMirrorBuilderAgent(input: MirrorBuilderInput): Promise
       system: [{ type: 'text', text: MIRROR_BUILDER_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       tools: MIRROR_TOOLS,
       messages,
-    })
+    }, requestOpts)
 
     if (response.stop_reason === 'end_turn') {
       const textBlock = response.content.find(b => b.type === 'text')
