@@ -39,12 +39,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="text-gray-300">·</span>
                 <span>Claude Impact Lab Chile 2026</span>
               </div>
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-wrap gap-x-4 gap-y-1.5 justify-center">
                 <Link href="/educacion" className="hover:text-blue-600 transition-colors">Educación</Link>
                 <Link href="/dashboard" className="hover:text-blue-600 transition-colors">Indicadores</Link>
                 <Link href="/nosotros" className="hover:text-blue-600 transition-colors">Equipo</Link>
                 <Link href="/proximas-funciones" className="hover:text-blue-600 transition-colors">Roadmap</Link>
-                <Link href="/debug" className="hover:text-blue-600 transition-colors">Transparencia técnica</Link>
+                <Link href="/debug" className="hover:text-blue-600 transition-colors hidden sm:inline">Transparencia técnica</Link>
                 <a
                   href="https://sernac.cl"
                   target="_blank"

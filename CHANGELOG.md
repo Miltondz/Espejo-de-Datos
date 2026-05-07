@@ -14,6 +14,20 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.4.0] — 2026-05-07
+
+### Fixed (Mobile — 360–480px)
+- **`components/NavLinks.tsx`** — reemplaza `flex-wrap` de 7 links por menú hamburguesa (`☰`/`✕`) en móvil; dropdown `fixed top-14 inset-x-0` con todos los links apilados verticalmente; se cierra al navegar; nav horizontal en `md+` sin cambios
+- **`components/espejo/MacroStrip.tsx`** — cambia `flex-wrap` por `overflow-x-auto` con pills `shrink-0`; atribución de fuente oculta en móvil (`hidden sm:inline`) para no romper el strip
+- **`components/espejo/OpenFinanceTeaser.tsx`** — grid de bancos `grid-cols-3` → `grid-cols-2 sm:grid-cols-3`; celdas pasan de ~105px a ~160px en 360px
+- **`components/espejo/InstitutionLensesTabs.tsx`** — pestañas `flex flex-wrap` → `flex overflow-x-auto pb-1`; evita que las 3 pestañas caigan a 2 filas en móvil
+- **`app/nosotros/page.tsx`** — hero `text-5xl` → `text-3xl sm:text-5xl md:text-6xl`; team grid `grid-cols-2 lg:grid-cols-4` → `grid-cols-1 sm:grid-cols-2 lg:grid-cols-4` para evitar cards de ~170px aplastadas
+- **`app/comunidad/page.tsx`** — stats mockup `grid-cols-3` → `grid-cols-2 sm:grid-cols-3`; celdas de métricas del taller legibles en móvil
+- **`app/historial/page.tsx`** — label de señal en comparativa antes/después con `truncate` y `gap-2`; evita overflow en panel `p-6` a 360px
+- **`app/layout.tsx`** — footer `gap-4` → `gap-x-4 gap-y-1.5` para mejor wrapping; "Transparencia técnica" `hidden sm:inline` para aligerar el footer en móvil
+
+---
+
 ## [1.3.0] — 2026-05-07
 
 ### Added
@@ -268,7 +282,8 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
-[Unreleased]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/Miltondz/Espejo-de-Datos/compare/v1.0.0...v1.1.0

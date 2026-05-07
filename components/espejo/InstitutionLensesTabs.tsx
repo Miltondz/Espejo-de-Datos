@@ -60,7 +60,7 @@ export default function InstitutionLensesTabs({
       </div>
 
       {/* Tabs */}
-      <div className="px-6 pt-4 flex gap-2 flex-wrap">
+      <div className="px-4 pt-4 flex gap-2 overflow-x-auto pb-1">
         {lenses.map((l, i) => {
           const c = LENS_CONFIG[l.institutionType] ?? LENS_CONFIG.bank
           const isActive = i === active

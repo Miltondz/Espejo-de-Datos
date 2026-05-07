@@ -149,7 +149,7 @@ export default function NosotrosPage() {
 
           <div className="space-y-3">
             <div className="text-5xl" aria-hidden="true">🪞</div>
-            <h1 className="text-5xl md:text-6xl font-black tracking-tight">Dunatech</h1>
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight">Dunatech</h1>
             <p className="text-lg text-blue-100 max-w-xl mx-auto leading-relaxed">
               El equipo detrás de <strong className="text-white">Espejo de Datos</strong> —
               cuatro disciplinas, un objetivo: que cada chileno entienda su perfil financiero.
@@ -204,7 +204,7 @@ export default function NosotrosPage() {
             <p className="text-gray-500 text-sm mt-1">Cuatro perspectivas, un producto</p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {TEAM.map(member => (
               <TeamCard key={member.name} member={member} />
             ))}

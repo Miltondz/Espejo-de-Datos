@@ -33,19 +33,21 @@ export default function MacroStrip() {
   if (items.length === 0) return null
 
   return (
-    <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs no-print">
-      <span className="text-slate-500 font-semibold shrink-0 uppercase tracking-wide">
-        Indicadores en vivo
-      </span>
-      {items.map(({ label, value }) => (
-        <span key={label} className="flex items-center gap-1.5">
-          <span className="text-slate-400">{label}</span>
-          <span className="font-bold text-gray-800">{value}</span>
+    <div className="bg-slate-50 border border-slate-200 rounded-xl no-print overflow-x-auto">
+      <div className="flex items-center gap-x-5 px-4 py-2.5 text-xs min-w-0">
+        <span className="text-slate-500 font-semibold shrink-0 uppercase tracking-wide">
+          Indicadores
         </span>
-      ))}
-      <span className="text-slate-400 ml-auto">
-        mindicador.cl{data.fuenteBde ? ' · Banco Central' : ''}
-      </span>
+        {items.map(({ label, value }) => (
+          <span key={label} className="flex items-center gap-1.5 shrink-0">
+            <span className="text-slate-400">{label}</span>
+            <span className="font-bold text-gray-800">{value}</span>
+          </span>
+        ))}
+        <span className="text-slate-400 shrink-0 hidden sm:inline ml-auto">
+          mindicador.cl{data.fuenteBde ? ' · Banco Central' : ''}
+        </span>
+      </div>
     </div>
   )
 }

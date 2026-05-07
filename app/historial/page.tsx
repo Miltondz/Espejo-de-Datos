@@ -64,9 +64,9 @@ export default function HistorialPage() {
           {/* Signal comparison */}
           <div className="space-y-2">
             {SIGNALS_MOCK.map(s => (
-              <div key={s.label} className="flex items-center gap-3 text-sm">
-                <span>{s.icon}</span>
-                <span className="flex-1 text-gray-700 font-medium">{s.label}</span>
+              <div key={s.label} className="flex items-center gap-2 text-sm">
+                <span className="shrink-0">{s.icon}</span>
+                <span className="flex-1 text-gray-700 font-medium truncate">{s.label}</span>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${SIGNAL_COLOR[s.antes]}`}>{s.antes}</span>
                 <span className="text-gray-300">→</span>
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${SIGNAL_COLOR[s.despues]}`}>{s.despues}</span>

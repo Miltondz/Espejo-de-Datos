@@ -183,6 +183,7 @@ Si el agente falla o no hay API key → `buildEspejoFromProfile()` (determinista
 | **v1.1** | 6 mayo | Landing: sección "Privacidad por diseño" con 14 badges temáticos · context hints en upload · CSS de impresión |
 | **v1.2** | 7 mayo | Página `/nosotros` equipo Dunatech · sección rubric en landing · ficha-proyecto.md · fix error mensajes API |
 | **v1.3** | 7 mayo | Extended Thinking en MirrorBuilderAgent + badge _meta en UI · MacroStrip live · ChatEspejoTeaser + OpenFinanceTeaser · /proximas-funciones con roadmap · redesigns /nosotros /historial /comunidad /educacion · NavLinks "Pronto" |
+| **v1.4** | 7 mayo | Fixes mobile 360–480px: hamburger menu, MacroStrip overflow-x-auto, grids 3→2 cols, hero text responsivo, footer compacto |
 
 Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle técnico completo.
 

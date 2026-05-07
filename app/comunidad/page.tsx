@@ -75,7 +75,7 @@ export default function ComunidadPage() {
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-3 gap-3 pt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-2">
             {[
               { label: 'Señal más frecuente', value: 'Uso cupo alto' },
               { label: 'Señales legales', value: '8 participantes' },
