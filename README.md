@@ -6,6 +6,22 @@
 
 Construido para el **Claude Impact Lab Chile 2026** · Línea 01 Inclusión Financiera · AI Builder.
 
+> **Video demo:** *(agregar link antes del 7 mayo 17:00)*
+> **App en vivo:** *(URL Vercel)*
+
+---
+
+## Herramientas Anthropic utilizadas
+
+| Herramienta | Uso |
+|---|---|
+| **Agent SDK** | MirrorBuilderAgent orquesta 5 tools MCP en loop agentico (hasta 10 rondas) |
+| **MCP** | `financial-mirror-mcp` expone 6 tools de dominio (parse, macro, profile, signals, lenses, simulate) |
+| **Files API** | Carga y descarta cartolas PDF de forma privada — eliminado en bloque `finally` |
+| **Extended Thinking** | `interleaved-thinking-2025-05-14` en LetterGeneratorAgent para razonamiento profundo |
+| **Citations** | Fundamenta cartas ciudadanas en extractos de ley chilena vigente (Ley 18.010, 19.496, 21.236, 21.719) |
+| **Prompt Caching** | `cache_control: ephemeral` en system prompt de los 3 agentes |
+
 ---
 
 ## ¿Qué hace?
@@ -164,8 +180,13 @@ Ver [CHANGELOG.md](./CHANGELOG.md) para el detalle técnico completo.
 
 | Bloque | Estado |
 |---|---|
-| Easy wins — Pasaporte imprimible, CartaModal mejorado | 🔜 |
-| QA + demo script — flujo Paula feliz + fallbacks + mobile | 🔜 |
+| PDF upload vía Files API (drag-and-drop, privacidad by design) | ✅ |
+| Extended Thinking + Citations en LetterGeneratorAgent | ✅ |
+| Prompt Caching en los 3 agentes | ✅ |
+| Rediseño frontend completo — landing, analizador, dashboard, educación | ✅ |
+| CartaModal con toggles thinking/citations + modoUsado badge | ✅ |
+| SignalsGrid ordenado por importancia + señales legales accionables | ✅ |
+| Pasaporte imprimible (@media print) | ✅ |
 | Pitch + Ficha Cívica — video demo, entrega portal | 🔜 |
 | **Deadline 17:00 UTC-4** | ⏰ |
 
