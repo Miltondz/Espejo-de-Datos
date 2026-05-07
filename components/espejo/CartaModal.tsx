@@ -54,97 +54,132 @@ export default function CartaModal({ signal, segmento, onClose }: CartaModalProp
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 no-print">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg space-y-4 p-6 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-start">
-          <h3 className="font-bold text-lg">Borrador de carta</h3>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 no-print">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto">
+        {/* Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-start rounded-t-2xl z-10">
+          <div>
+            <h3 className="font-bold text-gray-900 text-lg">Borrador de carta</h3>
+            <p className="text-xs text-gray-500 mt-0.5 leading-snug">{signal.titulo}</p>
+          </div>
           <button
             onClick={onClose}
             aria-label="Cerrar"
-            className="text-gray-400 hover:text-gray-600 text-xl leading-none"
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors ml-3 shrink-0"
           >
-            ✕
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
-        <p className="text-sm text-gray-500">{signal.titulo}</p>
 
-        <div className="space-y-2">
-          <input
-            type="text"
-            placeholder="Tu nombre (opcional)"
-            value={nombre}
-            onChange={e => setNombre(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
-          <input
-            type="text"
-            placeholder="Nombre de la institución"
-            value={institucion}
-            onChange={e => setInstitucion(e.target.value)}
-            className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-          />
-        </div>
-
-        <div className="flex flex-wrap gap-4 text-sm">
-          <label className="flex items-center gap-2 cursor-pointer">
+        <div className="p-6 space-y-5">
+          {/* Inputs */}
+          <div className="space-y-3">
             <input
-              type="checkbox"
-              checked={enableThinking}
-              onChange={e => setEnableThinking(e.target.checked)}
-              className="accent-blue-600"
+              type="text"
+              placeholder="Tu nombre (opcional)"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
             />
-            <span>
-              Razonamiento extendido
-              <span className="ml-1 text-xs text-gray-400">(más preciso)</span>
-            </span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
             <input
-              type="checkbox"
-              checked={enableCitations}
-              onChange={e => setEnableCitations(e.target.checked)}
-              className="accent-blue-600"
+              type="text"
+              placeholder="Nombre de la institución (ej: Banco Falabella)"
+              value={institucion}
+              onChange={e => setInstitucion(e.target.value)}
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
             />
-            <span>
-              Citar ley exacta
-              <span className="ml-1 text-xs text-gray-400">(referencia legal)</span>
-            </span>
-          </label>
-        </div>
+          </div>
 
-        <button
-          onClick={handleGenerar}
-          disabled={loading}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Generando…' : 'Generar borrador'}
-        </button>
+          {/* AI options */}
+          <div className="bg-slate-50 rounded-xl p-4 space-y-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Opciones IA</p>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enableThinking}
+                onChange={e => setEnableThinking(e.target.checked)}
+                className="accent-blue-600 w-4 h-4"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-800">Razonamiento extendido</span>
+                <span className="ml-2 text-xs text-gray-400">Más lento, más preciso</span>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={enableCitations}
+                onChange={e => setEnableCitations(e.target.checked)}
+                className="accent-blue-600 w-4 h-4"
+              />
+              <div>
+                <span className="text-sm font-medium text-gray-800">Citar ley exacta</span>
+                <span className="ml-2 text-xs text-gray-400">Incluye artículos de ley vigente</span>
+              </div>
+            </label>
+          </div>
 
-        {modoUsado && (
-          <p className="text-xs text-gray-400">
-            Generado con: <span className="font-mono text-gray-600">{modoUsado}</span>
-          </p>
-        )}
+          {/* Generate button */}
+          <button
+            onClick={handleGenerar}
+            disabled={loading}
+            className="w-full bg-gradient-to-r from-blue-700 to-blue-600 text-white py-3 rounded-xl text-sm font-semibold hover:from-blue-800 hover:to-blue-700 disabled:opacity-50 transition-all"
+          >
+            {loading ? (
+              <span className="flex items-center gap-2 justify-center">
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generando carta…
+              </span>
+            ) : (
+              'Generar borrador'
+            )}
+          </button>
 
-        {carta && (
-          <>
-            <textarea
-              value={carta}
-              onChange={e => setCarta(e.target.value)}
-              rows={8}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
-            />
-            <button onClick={handleCopy} className="text-sm text-blue-600 underline">
-              {copied ? '¡Copiado!' : 'Copiar al portapapeles'}
-            </button>
-          </>
-        )}
+          {/* Mode badge */}
+          {modoUsado && (
+            <p className="text-xs text-gray-400 text-center">
+              Generado con <span className="font-mono text-gray-600">{modoUsado}</span>
+            </p>
+          )}
 
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-          <p className="text-xs text-yellow-800">
-            Este borrador es una ayuda inicial. Revísalo con un abogado, con SERNAC o con un
-            programa de asesoría gratuita antes de enviarlo.
-          </p>
+          {/* Carta result */}
+          {carta && (
+            <div className="space-y-3">
+              <textarea
+                value={carta}
+                onChange={e => setCarta(e.target.value)}
+                rows={10}
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 font-mono"
+              />
+              <button
+                onClick={handleCopy}
+                className={`w-full py-2.5 rounded-xl text-sm font-semibold border transition-all ${
+                  copied
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                    : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                {copied ? '✅ ¡Copiado al portapapeles!' : '📋 Copiar al portapapeles'}
+              </button>
+            </div>
+          )}
+
+          {/* Disclaimer */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+            <p className="text-xs text-amber-800 leading-relaxed">
+              <strong>Borrador educativo.</strong> Revísalo con un abogado, con SERNAC o con un
+              programa de asesoría gratuita antes de enviarlo. Para asesoría gratuita:{' '}
+              <a href="https://sernac.cl" target="_blank" rel="noopener noreferrer" className="underline">
+                SERNAC
+              </a>{' '}
+              ·{' '}
+              <a href="https://cmfeduca.cl" target="_blank" rel="noopener noreferrer" className="underline">
+                CMF Educa
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

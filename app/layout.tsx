@@ -1,44 +1,70 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import Link from 'next/link'
+import NavLinks from '@/components/NavLinks'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Espejo de Datos',
-  description: 'Tu cartola que te evalúa en silencio, ahora también te explica.',
+  title: 'Espejo de Datos — Tu perfil financiero en lenguaje ciudadano',
+  description:
+    'Descubre cómo bancos, fintechs y el Estado interpretan tu cartola bancaria. Educación financiera con IA y privacidad garantizada.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={`${inter.className} min-h-screen flex flex-col bg-gray-50`}>
-        <header className="bg-white border-b shadow-sm no-print">
-          <nav className="container mx-auto px-4 py-3 flex justify-between items-center max-w-4xl">
-            <Link href="/" className="font-bold text-blue-700 text-lg">
-              Espejo de Datos
+      <body className={`${inter.className} min-h-screen flex flex-col bg-slate-50`}>
+        <header className="bg-white border-b border-gray-200 sticky top-0 z-40 no-print">
+          <nav className="container mx-auto px-4 h-14 flex items-center justify-between max-w-5xl">
+            <Link href="/" className="flex items-center gap-2 shrink-0">
+              <span className="text-xl" aria-hidden="true">🪞</span>
+              <span className="font-black text-gray-900 text-lg tracking-tight">
+                Espejo <span className="text-blue-600">de Datos</span>
+              </span>
             </Link>
-            <div className="flex gap-4 text-sm flex-wrap">
-              <Link href="/analizador" className="hover:text-blue-600 font-medium">
-                Tu Espejo
-              </Link>
-              <Link href="/dashboard" className="hover:text-blue-600">
-                Dashboard
-              </Link>
-              <Link href="/educacion" className="hover:text-blue-600">
-                Educación
-              </Link>
-              <span className="text-gray-400">Historial*</span>
-            </div>
+            <NavLinks />
           </nav>
         </header>
+
         <main className="flex-1">{children}</main>
-        <footer className="bg-white border-t mt-8 py-4 no-print">
-          <p className="text-center text-xs text-gray-500 px-4">
-            Espejo de Datos es educativo. No es asesoría financiera ni legal. Tus datos no se
-            guardan. © 2026 · Construido para Claude Impact Lab Chile
-          </p>
+
+        <footer className="bg-white border-t border-gray-200 py-6 no-print">
+          <div className="container mx-auto px-4 max-w-5xl">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+              <div className="flex items-center gap-2">
+                <span aria-hidden="true">🪞</span>
+                <span className="font-semibold text-gray-700">Espejo de Datos</span>
+                <span className="text-gray-300">·</span>
+                <span>Claude Impact Lab Chile 2026</span>
+              </div>
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Link href="/educacion" className="hover:text-blue-600 transition-colors">Educación</Link>
+                <Link href="/dashboard" className="hover:text-blue-600 transition-colors">Indicadores</Link>
+                <a
+                  href="https://sernac.cl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  SERNAC
+                </a>
+                <a
+                  href="https://cmfeduca.cl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-600 transition-colors"
+                >
+                  CMF Educa
+                </a>
+              </div>
+            </div>
+            <p className="text-xs text-gray-400 mt-3 text-center">
+              Herramienta educativa · No es asesoría financiera ni legal · Tus datos no se guardan ·{' '}
+              © 2026 Espejo de Datos
+            </p>
+          </div>
         </footer>
       </body>
     </html>

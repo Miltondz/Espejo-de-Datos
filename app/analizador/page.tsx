@@ -17,31 +17,53 @@ export default function AnalizadorPage() {
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-6 max-w-4xl">
-      <div className="flex flex-wrap justify-between items-center gap-2">
-        <h1 className="text-2xl font-bold">Tu Espejo Financiero</h1>
+      {/* Page header */}
+      <div className="flex flex-wrap justify-between items-center gap-3">
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Tu Espejo Financiero</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Así te leen los bancos, fintechs y el Estado — en lenguaje ciudadano
+          </p>
+        </div>
         <PrivacyBadge />
       </div>
 
+      {/* Upload / Demo selector */}
       <CartolaUpload onAnalyzed={setData} onError={setError} setLoading={setLoading} />
 
+      {/* Loading state */}
       {loading && (
-        <div className="text-center py-8 text-gray-500">Analizando tu cartola…</div>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center space-y-3">
+          <div className="flex justify-center">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+          </div>
+          <p className="text-gray-600 font-medium">Analizando tu cartola…</p>
+          <p className="text-xs text-gray-400">
+            Procesando transacciones, consultando indicadores macro y construyendo tu espejo.
+            Esto tarda entre 10 y 30 segundos.
+          </p>
+        </div>
       )}
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex justify-between items-start">
-          <p className="text-red-700 text-sm">{error}</p>
+      {/* Error state */}
+      {error && !loading && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex justify-between items-start gap-3">
+          <div className="flex gap-3 items-start">
+            <span className="text-red-500 text-lg mt-0.5" aria-hidden="true">⚠️</span>
+            <p className="text-red-700 text-sm">{error}</p>
+          </div>
           <button
             onClick={() => setError(null)}
-            className="text-red-400 hover:text-red-600 ml-2 text-sm underline"
+            className="text-red-400 hover:text-red-600 text-sm underline shrink-0"
           >
             Cerrar
           </button>
         </div>
       )}
 
-      {data && (
-        <>
+      {/* Results */}
+      {data && !loading && (
+        <div className="space-y-6">
           <ProfileSummaryCard summary={data.profileSummary} />
           <SignalsGrid signals={data.signals} segmento={data.profileSummary.segmento} />
           <InstitutionLensesTabs lenses={data.lenses} signals={data.signals} />
@@ -51,7 +73,7 @@ export default function AnalizadorPage() {
             initialSuggestion={data.simulationSuggestion}
           />
           <PasaporteButton />
-        </>
+        </div>
       )}
     </div>
   )
