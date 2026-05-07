@@ -15,6 +15,27 @@ Versiones siguiendo [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.0] — 2026-05-07
+
+### Added
+- **`app/nosotros/page.tsx`** — página del equipo Dunatech con hero, misión y 4 cards con foto pixel art, badge de rol por color y link directo a LinkedIn (Alejandra, Milton, Adolfo, Renzo)
+- **`public/img/`** — fotos pixel art del equipo servidas estáticamente (adolfo.jpg, alejandra.jpg, milton.jpg, renzo.jpg)
+- **`entregable/ficha-proyecto.md`** — documento estructurado que responde campo a campo el bloque "Problema y ciudadano" del rubric: problema ≤300 chars, segmento etario + NSE + ubicación, canal de adopción + justificación, impacto cuantificado + 6 URLs oficiales (leychile.cl, cmf.cl, sernac.cl)
+- **Landing — sección "¿A quién ayuda y cómo llega?"** — 3 cards: segmento (25–65 años, C2-D, RM/Valparaíso/Biobío), canal (WhatsApp + browser sin descarga), impacto (>8M personas con deuda vigente, fuente cmf.cl/estadisticas/)
+- **Landing — bloque "El problema"** — descripción de 175 chars sin jerga técnica, visible en demo y parseable por Bendi
+
+### Changed
+- `components/NavLinks.tsx` — agrega "Equipo" → `/nosotros`
+- `app/layout.tsx` footer — agrega link "Equipo"
+
+### Fixed
+- **`/api/analyze` handleUpload** — el catch ahora detecta el mensaje de la API y devuelve error útil cuando el problema es saldo insuficiente ("Sin saldo en la API de IA") en lugar de culpar al PDF con "texto seleccionable"
+
+### Chore
+- `.gitignore` — agrega `data-sintetica/`, `Docs-Final/series.csv` y `Docs-Final/Banco central*`
+
+---
+
 ## [1.1.0] — 2026-05-06
 
 ### Added
