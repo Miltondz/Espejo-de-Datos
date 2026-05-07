@@ -137,11 +137,30 @@ export default function CartaModal({ signal, segmento, onClose }: CartaModalProp
             )}
           </button>
 
-          {/* Mode badge */}
+          {/* Feature badges */}
           {modoUsado && (
-            <p className="text-xs text-gray-400 text-center">
-              Generado con <span className="font-mono text-gray-600">{modoUsado}</span>
-            </p>
+            <div className="flex flex-wrap gap-2 items-center justify-center">
+              {modoUsado.includes('extended-thinking') && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-full">
+                  🧠 Razonamiento extendido
+                </span>
+              )}
+              {modoUsado.includes('citations') && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full">
+                  📚 Citas legales verificadas
+                </span>
+              )}
+              {modoUsado === 'fallback-determinista' && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 border border-gray-200 px-2.5 py-1 rounded-full">
+                  Modo plantilla
+                </span>
+              )}
+              {!modoUsado.includes('extended-thinking') && !modoUsado.includes('citations') && modoUsado !== 'fallback-determinista' && (
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">
+                  ✓ Generado con IA
+                </span>
+              )}
+            </div>
           )}
 
           {/* Carta result */}

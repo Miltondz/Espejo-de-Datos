@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <Link href="/educacion" className="hover:text-blue-600 transition-colors">Educación</Link>
                 <Link href="/dashboard" className="hover:text-blue-600 transition-colors">Indicadores</Link>
                 <Link href="/nosotros" className="hover:text-blue-600 transition-colors">Equipo</Link>
+                <Link href="/debug" className="hover:text-blue-600 transition-colors">Transparencia técnica</Link>
                 <a
                   href="https://sernac.cl"
                   target="_blank"

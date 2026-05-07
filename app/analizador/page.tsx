@@ -11,6 +11,7 @@ import PasaporteButton from '@/components/espejo/PasaporteButton'
 import PrivacyBadge from '@/components/espejo/PrivacyBadge'
 import AnalysisProgress from '@/components/espejo/AnalysisProgress'
 import ComplianceBadges from '@/components/espejo/ComplianceBadges'
+import MacroStrip from '@/components/espejo/MacroStrip'
 
 export default function AnalizadorPage() {
   const [data, setData] = useState<EspejoResponse | null>(null)
@@ -32,6 +33,9 @@ export default function AnalizadorPage() {
         </div>
         <PrivacyBadge />
       </div>
+
+      {/* Live macro indicators */}
+      <MacroStrip />
 
       {/* Upload / Demo selector */}
       <CartolaUpload onAnalyzed={setData} onError={setError} setLoading={setLoading} />
